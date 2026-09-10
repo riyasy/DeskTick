@@ -11,12 +11,12 @@
 
 #define VER_MAJOR       1
 #define VER_MINOR       0
-#define VER_PATCH       1
+#define VER_PATCH       2
 #define VER_BUILD       0
 
-#define VER_NUMBER      1,0,1,0             // VERSIONINFO wants commas
-#define VER_STRING      "1.0.1.0"           // and a matching string
-#define VER_DISPLAY     "v1.0.1"            // what a person reads, in the About box
+#define VER_NUMBER      1,0,2,0             // VERSIONINFO wants commas
+#define VER_STRING      "1.0.2.0"           // and a matching string
+#define VER_DISPLAY     "v1.0.2"            // what a person reads, in the About box
 
 #define VER_COMPANY     "RYF Tools"
 #define VER_PRODUCT     "DeskTick"

@@ -15,7 +15,7 @@
   <Identity
     Name="RYFTools.DeskTick"
     Publisher="CN=44A50C10-C1BE-4575-B17F-07954C8C2229"
-    Version="1.0.1.0" />
+    Version="1.0.2.0" />
 
   <Properties>
     <DisplayName>DeskTick</DisplayName>
