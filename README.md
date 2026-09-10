@@ -98,7 +98,7 @@ The right-click menu is the whole interface:
 - **About DeskTick...**
 - **Exit**
 
-Everything is saved to `DeskTick.ini` beside the exe (`%LOCALAPPDATA%` for the Store build).
+Everything is saved to `%LOCALAPPDATA%\DeskTick.ini`.
 
 ---
 

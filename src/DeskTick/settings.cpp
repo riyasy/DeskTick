@@ -39,26 +39,29 @@ static bool Packaged()
 }
 
 // ------------------------------------------------------------------
-// INI, beside the exe.
+// INI, in %LOCALAPPDATA%.
 // ------------------------------------------------------------------
 static WCHAR s_ini[MAX_PATH];
 
-// The exe's own path with its extension swapped for .ini, worked out once.
+// %LOCALAPPDATA%\DeskTick.ini, worked out once.
 static const WCHAR* IniPath()
 {
     if (!s_ini[0]) {
-        // Packaged: the exe sits under WindowsApps, which is read-only to the
-        // app itself, so an INI beside it would be read at startup and never
-        // written — every setting lost on exit, and silently, because a failed
-        // WritePrivateProfileString is a return value nobody checks. The MSIX
-        // container redirects %LOCALAPPDATA% into the package's own LocalCache,
-        // so this stays per-user and goes with the package on uninstall.
+        // Per-user, and writable wherever the exe happens to sit. Beside the exe
+        // is only writable by luck: Program Files is not, and packaged the exe is
+        // under WindowsApps, which is read-only to the app itself — the INI would
+        // be read at startup and never written, every setting lost on exit and
+        // silently, because a failed WritePrivateProfileString is a return value
+        // nobody checks. Packaged, the MSIX container redirects %LOCALAPPDATA%
+        // into the package's own LocalCache, so it goes on uninstall; loose, it
+        // is the real folder and survives moving the exe.
         WCHAR local[MAX_PATH];
-        if (Packaged() &&
-            GetEnvironmentVariableW(L"LOCALAPPDATA", local, _countof(local)) &&
+        if (GetEnvironmentVariableW(L"LOCALAPPDATA", local, _countof(local)) &&
             SUCCEEDED(StringCchPrintfW(s_ini, _countof(s_ini), L"%s\\DeskTick.ini", local)))
             return s_ini;
 
+        // No LOCALAPPDATA at all: fall back to the exe's own path with its
+        // extension swapped, which is where this used to live unpackaged.
         GetModuleFileNameW(nullptr, s_ini, MAX_PATH);
         WCHAR* slash = wcsrchr(s_ini, L'\\');
         WCHAR* dot   = wcsrchr(slash ? slash : s_ini, L'.');
