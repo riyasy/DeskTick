@@ -1,0 +1,12 @@
+DeskTick - design credits
+=========================
+
+Few faces are inspired from internet. Please find credits here.
+
+Minimal https://codepen.io/HughDai/pen/MKKXJp
+Icon https://codepen.io/chrisota/pen/JoYWQM
+Bold https://codepen.io/bennettfeely/pen/DjyORw
+Flat https://codepen.io/katydecorah/pen/DwpVWP
+Glass https://codepen.io/filipz/pen/LEEMMgz
+Digital the Windows 7 sidebar / desktop gadget clock
+Word clock the 11x10 DIY word clock grid, after QLOCKTWO by Biegert & Funk

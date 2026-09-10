@@ -24,10 +24,6 @@ Package.StoreAssociation.xml
 # Agent guidance, kept local to the working copy.
 CLAUDE.md
 
-# Per-face design provenance. Referenced by nothing — not a build input, never
-# read at runtime — and kept out of the public tree.
-credits.txt
-
 # Test-signing certificate. Never a build input — the wapproj makes one on
 # demand — and committing a private key to a public repo is not recoverable.
 *.pfx
