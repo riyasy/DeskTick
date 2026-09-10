@@ -37,12 +37,18 @@ jobs:
         run: |
           msbuild src\DeskTick\DeskTick.vcxproj /p:Configuration=Release /p:Platform=${{ matrix.platform }} /p:PlatformToolset=v143
 
-      # lang\ ships beside the exe or the build is English-only; FindNearExe
-      # walks up, so the artifact's layout only has to keep them siblings.
+      # lang\ ships beside the exe or the build is English-only. Staged into one
+      # folder because upload-artifact roots the zip at the common ancestor of
+      # everything it matches: listing the exe and lang\ directly gives a zip
+      # with the exe still buried under x64\Release\ and lang\ at the top.
+      - name: Stage artifact
+        run: |
+          mkdir stage
+          copy src\DeskTick\${{ matrix.out_dir }}DeskTick.exe stage\
+          xcopy /Y /I /Q src\DeskTick\lang\* stage\lang\
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: DeskTick-${{ matrix.arch }}
-          path: |
-            src/DeskTick/${{ matrix.out_dir }}DeskTick.exe
-            src/DeskTick/lang/
+          path: stage/
