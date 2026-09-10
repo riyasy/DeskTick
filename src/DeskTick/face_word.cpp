@@ -23,10 +23,21 @@ static const float GX  = 25.0f, GY = 27.0f;              // grid origin
 static const int   ROWS = 10, COLS = 11;
 static const float CW  = 190.0f / COLS, CH = 186.0f / ROWS;   // cell size
 
-static const WCHAR* const GRID[ROWS] = {
+// Laid out so that reading order *is* sentence order: every word a phrase can
+// light appears below every word that precedes it. The AM and PM on the top row
+// are the exception, and so they are never lit — the grid has no cell after
+// O'CLOCK to put them in, and read from where they sit the sentence came out
+// "IT IS PM TWENTY TO TEN". They stay as decoy letters, which the grid is half
+// made of anyway. A word clock says "twenty to ten"; whether that is morning or
+// night is not something you need a clock to tell you.
+//
+// A 2D array, not an array of pointers, so a row with a twelfth letter is a
+// compile error rather than a phrase that silently misspells itself at some
+// times of day. See the static_assert below for the row that is a letter short.
+static constexpr WCHAR GRID[ROWS][COLS + 1] = {
     L"ITLISASAMPM",
     L"ACQUARTERDC",
-    L"TWENTYFIVEX",
+    L"TWENTYXFIVE",
     L"HALFSTENFTO",
     L"PASTERUNINE",
     L"ONESIXTHREE",
@@ -36,6 +47,16 @@ static const WCHAR* const GRID[ROWS] = {
     L"TENSEOCLOCK",
 };
 
+// Too long the compiler catches on its own; too short it pads with NULs, and
+// every run past the gap would be off by one column.
+constexpr bool GridRowsFull()
+{
+    for (int r = 0; r < ROWS; r++)
+        if (GRID[r][COLS - 1] == L'\0') return false;
+    return true;
+}
+static_assert(GridRowsFull(), "a GRID row is not COLS letters");
+
 // A run of letters to light: row, first column, length. len 0 = nothing.
 struct Run { int row, col, len; };
 
@@ -43,17 +64,17 @@ struct Run { int row, col, len; };
 // 9:41 reads TWENTY TO TEN, not TWENTY TO NINE.
 static const struct { Run a, b, conn; int hourAdd; } PHRASE[12] = {
     { {0,0,0}, {0,0,0}, {9,5,6}, 0 },   // :00  o'clock
-    { {2,6,4}, {0,0,0}, {4,0,4}, 0 },   // :05  five past
+    { {2,7,4}, {0,0,0}, {4,0,4}, 0 },   // :05  five past
     { {3,5,3}, {0,0,0}, {4,0,4}, 0 },   // :10  ten past
     { {1,2,7}, {0,0,0}, {4,0,4}, 0 },   // :15  quarter past
     { {2,0,6}, {0,0,0}, {4,0,4}, 0 },   // :20  twenty past
-    { {2,0,6}, {2,6,4}, {4,0,4}, 0 },   // :25  twenty five past
+    { {2,0,6}, {2,7,4}, {4,0,4}, 0 },   // :25  twenty five past
     { {3,0,4}, {0,0,0}, {4,0,4}, 0 },   // :30  half past
-    { {2,0,6}, {2,6,4}, {3,9,2}, 1 },   // :35  twenty five to
+    { {2,0,6}, {2,7,4}, {3,9,2}, 1 },   // :35  twenty five to
     { {2,0,6}, {0,0,0}, {3,9,2}, 1 },   // :40  twenty to
     { {1,2,7}, {0,0,0}, {3,9,2}, 1 },   // :45  quarter to
     { {3,5,3}, {0,0,0}, {3,9,2}, 1 },   // :50  ten to
-    { {2,6,4}, {0,0,0}, {3,9,2}, 1 },   // :55  five to
+    { {2,7,4}, {0,0,0}, {3,9,2}, 1 },   // :55  five to
 };
 
 static const Run HOURS[12] = {          // index 0 = twelve (hour 0 and 12)
@@ -160,8 +181,6 @@ public:
         unsigned lit[ROWS] = {};
         Light(lit, Run{ 0, 0, 2 });                     // IT
         Light(lit, Run{ 0, 3, 2 });                     // IS
-        Light(lit, st.wHour < 12 ? Run{ 0, 7, 2 }       // AM (actual time, not
-                                 : Run{ 0, 9, 2 });     // PM  the rolled hour)
 
         int m5 = st.wMinute / 5;
         Light(lit, PHRASE[m5].a);
