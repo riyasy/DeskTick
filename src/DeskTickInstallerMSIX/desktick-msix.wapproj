@@ -81,6 +81,12 @@
     <Content Include="..\DeskTick\assets\*.png">
       <Link>DeskTick\assets\%(Filename)%(Extension)</Link>
     </Content>
+    <!-- DeskTick's own terms, from the repo root, so the package carries what
+         the release zip carries. GPLv3 section 4 asks that a copy of the licence
+         travel with the program. -->
+    <Content Include="..\..\LICENSE">
+      <Link>DeskTick\LICENSE</Link>
+    </Content>
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
   <ItemGroup>

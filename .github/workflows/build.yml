@@ -43,11 +43,15 @@ jobs:
       # with the exe still buried under x64\Release\ and lang\ at the top.
       # version.h is the one place the version lives; the artifact name reads it
       # rather than carrying a second copy to forget to bump.
+      #
+      # LICENSE comes from the repo root: GPLv3 section 4 asks that a copy travel
+      # with the program, so the download carries the same terms the MSIX does.
       - name: Stage artifact
         id: stage
         run: |
           mkdir stage
           copy src\DeskTick\${{ matrix.out_dir }}DeskTick.exe stage\
+          copy LICENSE stage\
           xcopy /Y /I /Q src\DeskTick\lang\* stage\lang\
           $v = (Select-String src\DeskTick\version.h -Pattern '#define VER_DISPLAY\s+"([^"]+)"').Matches[0].Groups[1].Value
           "version=$v" >> $env:GITHUB_OUTPUT
