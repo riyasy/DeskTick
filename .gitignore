@@ -24,6 +24,10 @@ Package.StoreAssociation.xml
 # Agent guidance, kept local to the working copy.
 CLAUDE.md
 
+# Working notes for whoever cuts the builds — release procedure, draft release
+# notes. Not a build input, not read at runtime, and of no use to a clone.
+Docs/
+
 # Test-signing certificate. Never a build input — the wapproj makes one on
 # demand — and committing a private key to a public repo is not recoverable.
 *.pfx
