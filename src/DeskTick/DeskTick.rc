@@ -1,0 +1,57 @@
+// DeskTick.rc — the project's only resource script, and a small one: the exe's
+// identity, plus two icons for the About box's "Other apps" list.
+//
+// The VERSIONINFO block is not decoration. A native binary shipping with no
+// company, no product and no version is one of the strongest signals an
+// antivirus heuristic has to work with, so all three must stay filled in.
+// Everything in it comes from version.h so the resource and the About box
+// cannot drift apart.
+//
+// Each .ico wraps a single 48x48 PNG frame (Vista+ icon format), taken from the
+// two apps' own MSIX Square44x44Logo assets. Kept as icons rather than raw PNG
+// data so LoadImageW can scale them for the monitor's DPI and DrawIconEx can
+// blend their alpha, with no WIC decode of our own.
+
+#include <winver.h>
+#include "version.h"
+
+VS_VERSION_INFO VERSIONINFO
+    FILEVERSION    VER_NUMBER
+    PRODUCTVERSION VER_NUMBER
+    FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+    FILEFLAGS      VS_FF_DEBUG
+#else
+    FILEFLAGS      0
+#endif
+    FILEOS         VOS_NT_WINDOWS32
+    FILETYPE       VFT_APP
+    FILESUBTYPE    VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"                    // US English, Unicode
+        BEGIN
+            VALUE "CompanyName",      VER_COMPANY
+            VALUE "FileDescription",  VER_DESCRIPTION
+            VALUE "FileVersion",      VER_STRING
+            VALUE "InternalName",     VER_PRODUCT
+            VALUE "LegalCopyright",   VER_COPYRIGHT
+            VALUE "OriginalFilename", VER_FILENAME
+            VALUE "ProductName",      VER_PRODUCT
+            VALUE "ProductVersion",   VER_STRING
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200    // must match the block above
+    END
+END
+
+// Explorer, the taskbar and Alt+Tab all show the icon with the LOWEST id as
+// the application's icon. So this one is 1 and must stay below the other two —
+// give another icon a smaller id and the exe starts wearing that app's logo.
+1   ICON "res\\desktick.ico"
+
+101 ICON "res\\flyphotos.ico"
+102 ICON "res\\letitrain.ico"

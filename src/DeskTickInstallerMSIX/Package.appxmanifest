@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  IgnorableNamespaces="uap rescap">
+
+  <!-- Name and Publisher must match what Partner Center reserved for this app;
+       the Publisher CN is the account's publisher id, the same one Let It Rain
+       ships under. Version has to be kept in step with DeskTick\version.h by
+       hand — XML cannot include the header — and the Store requires the fourth
+       part to stay 0. -->
+  <Identity
+    Name="RYFTools.DeskTick"
+    Publisher="CN=44A50C10-C1BE-4575-B17F-07954C8C2229"
+    Version="1.0.1.0" />
+
+  <Properties>
+    <DisplayName>DeskTick</DisplayName>
+    <PublisherDisplayName>RYF Tools</PublisherDisplayName>
+    <Logo>Images\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+    <!-- 1809: the dark-mode uxtheme ordinals winutil.cpp resolves. The hard
+         floor is 1803, where CREATE_WAITABLE_TIMER_HIGH_RESOLUTION arrived —
+         without it clock.cpp's timer never gets created and the app exits. -->
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.17763.0" />
+  </Dependencies>
+
+  <!-- The languages the UI is actually translated into, which is what the Store
+       lists under "Supported languages". This does NOT drive language selection
+       at runtime: loc.cpp resolves GetUserPreferredUILanguages against the loose
+       lang\*.ini files itself, and MRT never sees them. It has to be an explicit
+       list rather than x-generate for exactly that reason — x-generate infers
+       the set from MRT resources, finds only en-US, and advertises the app as
+       English-only. Keep in step with Src\DeskTick\lang\. -->
+  <Resources>
+    <Resource Language="en-US"/>
+    <Resource Language="ar-SA"/>
+    <Resource Language="de-DE"/>
+    <Resource Language="es-ES"/>
+    <Resource Language="fi-FI"/>
+    <Resource Language="fr-FR"/>
+    <Resource Language="hu-HU"/>
+    <Resource Language="it-IT"/>
+    <Resource Language="ja-JP"/>
+    <Resource Language="ko-KR"/>
+    <Resource Language="ml-IN"/>
+    <Resource Language="nl-NL"/>
+    <Resource Language="pl-PL"/>
+    <Resource Language="pt-BR"/>
+    <Resource Language="pt-PT"/>
+    <Resource Language="ru-RU"/>
+    <Resource Language="sv-SE"/>
+    <Resource Language="uk-UA"/>
+    <Resource Language="zh-CN"/>
+    <Resource Language="zh-TW"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+      Executable="$targetnametoken$.exe"
+      EntryPoint="$targetentrypoint$">
+      <uap:VisualElements
+        DisplayName="DeskTick"
+        Description="Minimal transparent desktop clock widget"
+        BackgroundColor="transparent"
+        Square150x150Logo="Images\Square150x150Logo.png"
+        Square44x44Logo="Images\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png" Square71x71Logo="Images\SmallTile.png" Square310x310Logo="Images\LargeTile.png"/>
+        <uap:SplashScreen Image="Images\SplashScreen.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <!-- "Start with Windows", for the packaged build. The Run key the loose
+             exe uses cannot work here: the value would have to name the exe
+             under WindowsApps, which is not launchable that way and would lose
+             the package identity if it were.
+
+             Enabled="false" is the state at install: the app asks for it from
+             settings.cpp when the menu item is ticked, and Windows — or the
+             user, in Task Manager's Startup tab — has the final say. Executable
+             is the path inside the package, so it carries the project subfolder
+             DesktopBridge puts the exe in; TaskId must match TASK_ID in
+             settings.cpp, and a mismatch shows up only at runtime. -->
+        <desktop:Extension Category="windows.startupTask" Executable="DeskTick\DeskTick.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="DeskTickStartup" Enabled="false" DisplayName="DeskTick" />
+        </desktop:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

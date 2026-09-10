@@ -1,0 +1,11 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="DeskTick/DeskTick.vcxproj" Id="7c3a5e91-4b2d-4f8a-9e6c-1d0b8a2f5c47" />
+  <Project Path="DeskTickInstallerMSIX/desktick-msix.wapproj" Type="c7167f0d-bc9f-4e6e-afe1-012c56b48db5" Id="3f2b90d4-6c81-4a55-9b3e-27ac5f18e604">
+    <Deploy />
+  </Project>
+</Solution>

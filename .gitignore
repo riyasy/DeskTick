@@ -1,0 +1,33 @@
+# MSBuild output. OutDir/IntDir are pinned to the project directory
+# (DeskTick.vcxproj), so these sit under src\DeskTick\.
+[Xx]64/
+[Aa][Rr][Mm]64/
+[Ww]in32/
+[Oo]bj/
+.vs/
+*.user
+
+# Resource-editor backup, written beside DeskTick.rc if it is opened in VS.
+*.aps
+
+# MSIX packaging output. Only Package.appxmanifest and Images\ are source;
+# the wapproj rebuilds the rest.
+AppPackages/
+BundleArtifacts/
+*.assets.cache
+
+# Store publisher identity and reserved app names, written by VS when the app
+# is associated with a Store listing. Account metadata, not source — anyone
+# building this associates with their own account, or doesn't package at all.
+Package.StoreAssociation.xml
+
+# Agent guidance, kept local to the working copy.
+CLAUDE.md
+
+# Per-face design provenance. Referenced by nothing — not a build input, never
+# read at runtime — and kept out of the public tree.
+credits.txt
+
+# Test-signing certificate. Never a build input — the wapproj makes one on
+# demand — and committing a private key to a public repo is not recoverable.
+*.pfx

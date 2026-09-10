@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7c3a5e91-4b2d-4f8a-9e6c-1d0b8a2f5c47}</ProjectGuid>
+    <ProjectName>DeskTick</ProjectName>
+    <RootNamespace>DeskTick</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+    <WholeProgramOptimization Condition="'$(Configuration)'=='Release'">true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <!-- Anchored to the project, not the solution. The default OutDir is
+         $(SolutionDir)$(Platform)\$(Configuration)\, and the solution now sits
+         one level up beside the MSIX project — which would put the exe in
+         Src\x64\Release, where FindNearExe's walk up finds neither assets\ nor
+         lang\. Naming it here keeps the documented DeskTick\x64\<Config>\ path
+         whether the build comes from the solution, the project, or the wapproj's
+         project reference. -->
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <ConformanceMode>true</ConformanceMode>
+      <!-- Unset, MSVC defaults to C++14. Named here, in the shared group, so
+           every configuration gets the same one: a standard set per-config
+           drifts, and then code that compiles in the config you develop in
+           breaks the ones that ship.
+           C++20 also allows a constexpr constructor on a polymorphic type, so
+           the default-constructed face instances are constant-initialized
+           rather than dynamically. That does not extend to face_classic's two,
+           whose constructor is user-provided and not constexpr — but the
+           faces.cpp registry never depended on the objects' init order, only
+           on the pointers', which were always address constants. -->
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <FunctionLevelLinking Condition="'$(Configuration)'=='Release'">true</FunctionLevelLinking>
+      <IntrinsicFunctions Condition="'$(Configuration)'=='Release'">true</IntrinsicFunctions>
+      <Optimization Condition="'$(Configuration)'=='Release'">MaxSpeed</Optimization>
+      <!-- Static CRT: no VCRedist needed on target machines -->
+      <RuntimeLibrary Condition="'$(Configuration)'=='Debug'">MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'">true</EnableCOMDATFolding>
+      <OptimizeReferences Condition="'$(Configuration)'=='Release'">true</OptimizeReferences>
+      <!-- /PDBALTPATH: without it the exe carries the full path of the machine
+           that built it (C:\Users\<name>\...\Clock.pdb). That is a privacy leak
+           in a public release and something scanners score against you. %_PDB%
+           stores the file name only.
+           /Brepro: drops the link timestamp, so two builds of the same source
+           produce the same bytes and anyone can rebuild a release and compare.
+           Both are Release-only: a local debug build wants its real PDB path. -->
+      <AdditionalOptions Condition="'$(Configuration)'=='Release'">/PDBALTPATH:%_PDB% /Brepro %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="clock.cpp" />
+    <ClCompile Include="winutil.cpp" />
+    <ClCompile Include="loc.cpp" />
+    <ClCompile Include="assets.cpp" />
+    <ClCompile Include="settings.cpp" />
+    <ClCompile Include="dlgchrome.cpp" />
+    <ClCompile Include="customize.cpp" />
+    <ClCompile Include="about.cpp" />
+    <ClCompile Include="faces.cpp" />
+    <ClCompile Include="face_classic.cpp" />
+    <ClCompile Include="face_minimal.cpp" />
+    <ClCompile Include="face_appicon.cpp" />
+    <ClCompile Include="face_image.cpp" />
+    <ClCompile Include="face_bold.cpp" />
+    <ClCompile Include="face_flat.cpp" />
+    <ClCompile Include="face_simple.cpp" />
+    <ClCompile Include="face_digital.cpp" />
+    <ClCompile Include="face_digital_bold.cpp" />
+    <ClCompile Include="face_word.cpp" />
+    <ClCompile Include="face_stack.cpp" />
+    <ClCompile Include="face_terminal.cpp" />
+    <ClCompile Include="face_glass.cpp" />
+    <ClCompile Include="face_dots.cpp" />
+    <ClCompile Include="face_banner.cpp" />
+    <ClCompile Include="face_split.cpp" />
+    <ClInclude Include="app.h" />
+    <ClInclude Include="faces.h" />
+    <ClInclude Include="version.h" />
+    <ResourceCompile Include="DeskTick.rc" />
+    <Manifest Include="app.manifest" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>
