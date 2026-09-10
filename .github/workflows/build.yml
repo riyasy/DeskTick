@@ -41,14 +41,20 @@ jobs:
       # folder because upload-artifact roots the zip at the common ancestor of
       # everything it matches: listing the exe and lang\ directly gives a zip
       # with the exe still buried under x64\Release\ and lang\ at the top.
+      # version.h is the one place the version lives; the artifact name reads it
+      # rather than carrying a second copy to forget to bump.
       - name: Stage artifact
+        id: stage
         run: |
           mkdir stage
           copy src\DeskTick\${{ matrix.out_dir }}DeskTick.exe stage\
           xcopy /Y /I /Q src\DeskTick\lang\* stage\lang\
+          $v = (Select-String src\DeskTick\version.h -Pattern '#define VER_DISPLAY\s+"([^"]+)"').Matches[0].Groups[1].Value
+          "version=$v" >> $env:GITHUB_OUTPUT
 
+      # GitHub always zips, so this name is the .zip's base name.
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DeskTick-${{ matrix.arch }}
+          name: DeskTick_${{ steps.stage.outputs.version }}_${{ matrix.arch }}
           path: stage/
