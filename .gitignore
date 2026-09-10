@@ -14,6 +14,7 @@
 # the wapproj rebuilds the rest.
 AppPackages/
 BundleArtifacts/
+bin/
 *.assets.cache
 
 # Store publisher identity and reserved app names, written by VS when the app
