@@ -10,8 +10,9 @@ Desktop, and remembers its place. Around 1 MB, under 10 MB of RAM, twenty langua
 ## 🎬 Preview
 
 <!-- Drop a screen recording or screenshot here -->
+<img width="1832" height="2104" alt="minclock-faces" src="https://github.com/user-attachments/assets/1f3a94cb-e5ae-411d-b344-797fcc88d4e3" />
 
----
+
 
 ## ✨ Features
 
