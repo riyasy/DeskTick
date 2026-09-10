@@ -1,0 +1,10 @@
+# The translation files are UTF-16LE with a BOM, because that is the only
+# encoding the Win32 profile APIs read as Unicode (loc.cpp). Line-ending
+# normalisation corrupts them: a newline is 0D 00 0A 00, whose 0A reads as a
+# lone LF, and checkout rewrites it to 0D 00 0D 0A 00 — one byte too many, and
+# every code unit after it is misaligned.
+#
+# Git already infers this from the NUL bytes. Saying it means a later
+# `* text=auto` cannot quietly undo it, since an explicit attribute wins over
+# auto-detection.
+src/DeskTick/lang/*.ini binary
