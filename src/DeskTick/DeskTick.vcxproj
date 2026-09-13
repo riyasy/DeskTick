@@ -129,6 +129,15 @@
       <NullTerminateStrings>true</NullTerminateStrings>
     </ResourceCompile>
     <Manifest Include="app.manifest" />
+    <!-- Not build inputs of their own, listed so Solution Explorer shows every
+         file in the folder: the icons DeskTick.rc compiles, the CSV and script
+         that generate Localization\strings.*, and the design credits. -->
+    <Image Include="res\desktick.ico" />
+    <Image Include="res\flyphotos.ico" />
+    <Image Include="res\letitrain.ico" />
+    <Text Include="credits.txt" />
+    <Text Include="Localization\translations.csv" />
+    <None Include="Localization\build.ps1" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
