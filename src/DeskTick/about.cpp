@@ -30,7 +30,7 @@ static HWND  s_about;
 static HFONT s_aFont, s_aTitle, s_aHead;    // body, "DeskTick", section/app names
 
 struct OtherApp {
-    int icon; const WCHAR* name; const WCHAR* blurb;
+    int icon; const WCHAR* name; UINT blurb;
     const WCHAR* store;                 // ms-windows-store: opens the Store app
     const WCHAR* web;                   // https: used only if that scheme is dead
 };
@@ -48,12 +48,10 @@ struct OtherApp {
 // for the surface (as the READMEs' cid=GitHubRelease is) so a second place that
 // links to the Store can be told apart from this one.
 static const OtherApp OTHER_APPS[] = {
-    { ICON_FLYPHOTOS, L"FlyPhotos",
-      L"Fast, lightweight, and minimalist photo viewer designed for the modern Windows",
+    { ICON_FLYPHOTOS, L"FlyPhotos", IDS_FLYPHOTOS_BLURB,
       L"ms-windows-store://pdp/?productid=9PMSK128V1QT&cid=DeskTickAbout",
       L"https://apps.microsoft.com/detail/9pmsk128v1qt?cid=DeskTickAbout&mode=full" },
-    { ICON_LETITRAIN, L"Let It Rain",
-      L"Desktop Rain and Snow Simulator for Windows",
+    { ICON_LETITRAIN, L"Let It Rain", IDS_LETITRAIN_BLURB,
       L"ms-windows-store://pdp/?productid=9P1H1VCJHJZP&cid=DeskTickAbout",
       L"https://apps.microsoft.com/detail/9p1h1vcjhjzp?cid=DeskTickAbout&mode=full" },
 };
@@ -130,11 +128,11 @@ static void AboutBuild()
     // Assembled from three pieces rather than drawn from VER_COPYRIGHT whole,
     // because only the last piece is prose. The sign and the holder are
     // identity: hand a translator "© RYF Tools. All rights reserved." as
-    // one key and every one of them has to retype the holder inside their
-    // value, where a typo is a wrong copyright notice — and rebranding would
-    // silently drop all of the translations at once, the key having changed.
-    // So the holder comes from VER_COMPANY untranslated and only the sentence
-    // goes through T().
+    // one string and every one of them has to retype the holder inside their
+    // translation, where a typo is a wrong copyright notice — and rebranding
+    // would mean re-translating the row in every language at once. So the
+    // holder comes from VER_COMPANY untranslated and only the sentence goes
+    // through T().
     //
     // ©, not the \xA9 version.h uses and not a pasted sign: this is a wide
     // literal in a BOM-less .cpp, so a universal character name is the only
@@ -143,13 +141,13 @@ static void AboutBuild()
     // consumer.
     WCHAR copyright[160];
     StringCchPrintfW(copyright, _countof(copyright), L"\u00A9 %s. %s",
-                     _CRT_WIDE(VER_COMPANY), T(L"All rights reserved."));
+                     _CRT_WIDE(VER_COMPANY), T(IDS_RIGHTS_RESERVED));
     y = AboutText(s_about, inst, copyright, s_aFont, x, y, w, A(18));
 
     // Height measured rather than fixed at one line, for the same reason the
     // blurbs below are: this sentence is short in English and not in every
     // language, and a fixed A(18) would clip the second line off.
-    const WCHAR* feedback = T(L"Report issues or send feedback to");
+    const WCHAR* feedback = T(IDS_FEEDBACK);
     y = AboutText(s_about, inst, feedback, s_aFont, x, y + A(14), w,
                   max(A(18), (int)TextExtent(s_about, s_aFont, feedback, w).bottom));
     // A SysLink rather than blue static text: it gets the hand cursor, keyboard
@@ -162,7 +160,7 @@ static void AboutBuild()
     SendMessageW(link, WM_SETFONT, (WPARAM)s_aFont, TRUE);
     y += A(20);
 
-    y = AboutText(s_about, inst, T(L"Other apps"), s_aHead, x, y + A(18), w, A(20));
+    y = AboutText(s_about, inst, T(IDS_OTHER_APPS), s_aHead, x, y + A(18), w, A(20));
     y += A(6);
 
     for (int i = 0; i < (int)_countof(OTHER_APPS); i++) {
@@ -297,7 +295,7 @@ void AboutShow(HWND owner)
 
     RECT rc; GetWindowRect(owner, &rc);
     s_about = CreateWindowExW(DlgExStyle(), L"ClockAbout",
-                              T(L"About DeskTick"), DLG_STYLE,
+                              T(IDS_ABOUT_TITLE), DLG_STYLE,
                               rc.right + 12, rc.top, 100, 100,
                               nullptr, nullptr, inst, nullptr);
     if (!s_about) return;

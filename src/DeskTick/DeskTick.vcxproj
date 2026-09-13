@@ -46,8 +46,8 @@
     <!-- Anchored to the project, not the solution. The default OutDir is
          $(SolutionDir)$(Platform)\$(Configuration)\, and the solution now sits
          one level up beside the MSIX project — which would put the exe in
-         Src\x64\Release, where FindNearExe's walk up finds neither assets\ nor
-         lang\. Naming it here keeps the documented DeskTick\x64\<Config>\ path
+         Src\x64\Release, where FindNearExe's walk up does not find assets\.
+         Naming it here keeps the documented DeskTick\x64\<Config>\ path
          whether the build comes from the solution, the project, or the wapproj's
          project reference. -->
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
@@ -118,7 +118,16 @@
     <ClInclude Include="app.h" />
     <ClInclude Include="faces.h" />
     <ClInclude Include="version.h" />
+    <ClInclude Include="Localization\strings.h" />
     <ResourceCompile Include="DeskTick.rc" />
+    <!-- The UI strings in every language, generated from translations.csv by
+         Localization\build.ps1. A second item rather than an #include in
+         DeskTick.rc, so the VS resource editor never opens and rewrites a
+         generated UTF-16 file. /n null-terminates every string, which is what
+         lets loc.cpp's T() hand out a pointer straight into the resource. -->
+    <ResourceCompile Include="Localization\strings.rc">
+      <NullTerminateStrings>true</NullTerminateStrings>
+    </ResourceCompile>
     <Manifest Include="app.manifest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

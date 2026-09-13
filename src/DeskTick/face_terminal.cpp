@@ -50,7 +50,15 @@ static const WCHAR* DayLower(int dow)
 // The prompt is a choice, not free text, so every option value stays an int.
 // Each is drawn verbatim as the prompt line, so all three carry the command:
 // the face reads as `time` typed at a shell, with the clock as its output.
-static const WCHAR* const PROMPTS[] = { L"$ time", L"> time", L"~/clock $ time", nullptr };
+//
+// Two lists: the ids are what the Customize dialog lists, the literals are what
+// the face draws — a face cannot call T(), and a shell prompt is not prose
+// anyway. translations.csv marks the three do-not-translate so the list and the
+// drawing stay the same text.
+static const UINT         PROMPTS[]     = { IDS_CHOICE_PROMPT_DOLLAR, IDS_CHOICE_PROMPT_ANGLE,
+                                            IDS_CHOICE_PROMPT_PATH, 0 };
+static const WCHAR* const PROMPT_TEXT[] = { L"$ time", L"> time", L"~/clock $ time" };
+static_assert(_countof(PROMPTS) == _countof(PROMPT_TEXT) + 1, "PROMPTS/PROMPT_TEXT disagree");
 
 static int o_phosphor = RGB(127, 231, 135);
 static int o_prompt   = 0;
@@ -59,11 +67,11 @@ static int o_date     = 1;
 static int o_blink    = 1;
 
 static const FaceOpt s_opts[] = {
-    { L"Phosphor colour", OPT_COLOR,  &o_phosphor, nullptr  },
-    { L"Prompt",          OPT_CHOICE, &o_prompt,   PROMPTS  },
-    { L"24-hour clock",   OPT_BOOL,   &o_hour24,   nullptr  },
-    { L"Show date",       OPT_BOOL,   &o_date,     nullptr  },
-    { L"Blinking cursor", OPT_BOOL,   &o_blink,    nullptr  },
+    { L"Phosphor colour", IDS_OPT_PHOSPHOR,  OPT_COLOR,  &o_phosphor, nullptr },
+    { L"Prompt",          IDS_OPT_PROMPT,    OPT_CHOICE, &o_prompt,   PROMPTS },
+    { L"24-hour clock",   IDS_OPT_HOUR24,    OPT_BOOL,   &o_hour24,   nullptr },
+    { L"Show date",       IDS_OPT_SHOW_DATE, OPT_BOOL,   &o_date,     nullptr },
+    { L"Blinking cursor", IDS_OPT_BLINK,     OPT_BOOL,   &o_blink,    nullptr },
 };
 
 class TerminalFace : public IClockFace {
@@ -80,8 +88,9 @@ class TerminalFace : public IClockFace {
     }
 
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Terminal"; }
+    UINT GetLabel() const override { return IDS_FACE_TERMINAL; }
 
     // Static art: the near-black panel and its phosphor hairline border.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override
@@ -121,7 +130,7 @@ public:
         WCHAR buf[32];
 
         b->SetColor(FromRGB(o_phosphor, 0.42f));
-        DrawTextIn(rt, b, m_fSmall, PROMPTS[o_prompt], D2D1::RectF(TX, 79, PX1, 91));
+        DrawTextIn(rt, b, m_fSmall, PROMPT_TEXT[o_prompt], D2D1::RectF(TX, 79, PX1, 91));
 
         int h = o_hour24 ? st.wHour : (st.wHour % 12 ? st.wHour % 12 : 12);
         // The separator is the locale's, so this is no longer a format of ours

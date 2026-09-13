@@ -142,7 +142,7 @@ static void BuildControls()
                     if (cw > ctlW) ctlW = cw;
                 }
         }
-        int rw = TextW(dc, T(L"Reset this face"), dpi) + PAD * 2;
+        int rw = TextW(dc, T(IDS_RESET_FACE), dpi) + PAD * 2;
         if (rw > resetW) resetW = rw;
         SelectObject(dc, prev);
         ReleaseDC(s_dlg, dc);
@@ -197,9 +197,9 @@ static void BuildControls()
         y += ROW;
     }
 
-    // Section() names the face here: the image face's GetName() is a full
-    // image path, which reads wrong in a title bar and is twice the length of
-    // this buffer — and wsprintfW would not stop at the end of it.
+    // GetLabel() names the face here, never GetName(): the image face's name is
+    // a full image path, which reads wrong in a title bar and is twice the
+    // length of this buffer.
     // The app's name goes in the title because this window is where the app is
     // named: it takes a taskbar button and an Alt+Tab slot (the clock itself is
     // a tool window and takes neither), so without it there is nothing on screen
@@ -207,17 +207,17 @@ static void BuildControls()
     //
     // The pieces are translated, the punctuation between them is ours. A
     // translatable string holding a "%s" would be a format string coming out of
-    // an editable file: one that gained a second specifier would send
+    // a translator's cell: one that gained a second specifier would send
     // wsprintfW after an argument nobody passed. Assembling from parts costs a
     // little word order in a title bar and removes that entirely — and
     // StringCchPrintfW truncates where wsprintfW would run off the end, which
-    // now matters because a translated face name has no length we control.
+    // matters because a translated face name has no length we control.
     WCHAR title[128];
     if (n) StringCchPrintfW(title, _countof(title), L"%s: %s - DeskTick",
-                            T(L"Customize"), T(Section(s_face)));
-    else   StringCchCopyW(title, _countof(title), T(L"Customize - DeskTick"));
+                            T(IDS_CUSTOMIZE), T(s_face->GetLabel()));
+    else   StringCchCopyW(title, _countof(title), T(IDS_CUSTOMIZE_TITLE));
     if (!n) {
-        HWND lbl = CreateWindowExW(0, L"STATIC", T(L"This face has nothing to customize."),
+        HWND lbl = CreateWindowExW(0, L"STATIC", T(IDS_CUSTOMIZE_NOTHING),
                                    WS_CHILD | WS_VISIBLE | SS_LEFT,
                                    S(MARGIN), S(MARGIN), S(labW + ctlW), S(18),
                                    s_dlg, nullptr, inst, nullptr);
@@ -231,7 +231,7 @@ static void BuildControls()
         y += 6;
         // The label says "this face" because that is the scope: the dialog
         // shows one face at a time and the reset follows it.
-        HWND rst = CreateWindowExW(0, L"BUTTON", T(L"Reset this face"),
+        HWND rst = CreateWindowExW(0, L"BUTTON", T(IDS_RESET_FACE),
                                    WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
                                    S(MARGIN + labW + ctlW - resetW), S(y),
                                    S(resetW), S(24),
@@ -407,7 +407,7 @@ void CustomizeShow(HWND owner, const IClockFace* face)
 
     RECT rc; GetWindowRect(owner, &rc);
     s_dlg = CreateWindowExW(DlgExStyle(), L"ClockConfig",
-                            T(L"Customize - DeskTick"), DLG_STYLE,
+                            T(IDS_CUSTOMIZE_TITLE), DLG_STYLE,
                             rc.right + 12, rc.top, 100, 100,
                             nullptr, nullptr, inst, nullptr);
     if (!s_dlg) return;

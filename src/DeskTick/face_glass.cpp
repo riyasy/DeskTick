@@ -30,7 +30,7 @@ static const float NUM_R    = 91.0f;                // numeral centres
 // ---- options ----
 // Frost is a choice, not a colour: it is the fill's alpha pair, and
 // ChooseColorW has no alpha to give.
-static const WCHAR* const FROST[] = { L"Clear", L"Frosted", L"Opaque", nullptr };
+static const UINT FROST[] = { IDS_CHOICE_CLEAR, IDS_CHOICE_FROSTED, IDS_CHOICE_OPAQUE, 0 };
 static const float FROST_TOP[] = { 0.34f, 0.62f, 0.88f };
 static const float FROST_BOT[] = { 0.20f, 0.44f, 0.74f };
 // ClampOpt (settings.cpp) clamps a choice against the length of the STRING list,
@@ -46,16 +46,17 @@ static int o_frost  = 1;
 static int o_nums   = 1;
 
 static const FaceOpt s_opts[] = {
-    { L"Ink colour",    OPT_COLOR,  &o_ink,    nullptr },
-    { L"Accent colour", OPT_COLOR,  &o_accent, nullptr },
-    { L"Frost",         OPT_CHOICE, &o_frost,  FROST   },
-    { L"Numerals",      OPT_BOOL,   &o_nums,   nullptr },
+    { L"Ink colour",    IDS_OPT_INK_COLOUR,    OPT_COLOR,  &o_ink,    nullptr },
+    { L"Accent colour", IDS_OPT_ACCENT_COLOUR, OPT_COLOR,  &o_accent, nullptr },
+    { L"Frost",         IDS_OPT_FROST,         OPT_CHOICE, &o_frost,  FROST   },
+    { L"Numerals",      IDS_OPT_NUMERALS,      OPT_BOOL,   &o_nums,   nullptr },
 };
 
 class GlassFace : public IClockFace {
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Glass"; }
+    UINT GetLabel() const override { return IDS_FACE_GLASS; }
 
     // Static art, and the expensive half of this face: shadow, frost, the
     // 72-chord rim light, the minute ticks and the numerals.

@@ -51,7 +51,7 @@ static const float SEC_CELL = SEC_SIZE * 0.515f;
 // The minute's dimming is the face's whole idea, so it is a choice rather
 // than being folded into the ink colour — alpha is not something the colour
 // picker can express.
-static const WCHAR* const DIMMING[] = { L"Match hour", L"Dim", L"Faint", nullptr };
+static const UINT DIMMING[] = { IDS_CHOICE_MATCH_HOUR, IDS_CHOICE_DIM, IDS_CHOICE_FAINT, 0 };
 static const float DIM_A[] = { 1.0f, 0.50f, 0.25f };
 // ClampOpt can only count the string list, so a fourth name without a fourth
 // alpha would clamp clean and then read past DIM_A. +1 for the terminator.
@@ -64,11 +64,11 @@ static int o_dim    = 1;
 static int o_date   = 1;
 
 static const FaceOpt s_opts[] = {
-    { L"24-hour clock",  OPT_BOOL,   &o_hour24, nullptr },
-    { L"Ink colour",     OPT_COLOR,  &o_ink,    nullptr },
-    { L"Accent colour",  OPT_COLOR,  &o_accent, nullptr },
-    { L"Minute dimming", OPT_CHOICE, &o_dim,    DIMMING },
-    { L"Show date",      OPT_BOOL,   &o_date,   nullptr },
+    { L"24-hour clock",  IDS_OPT_HOUR24,         OPT_BOOL,   &o_hour24, nullptr },
+    { L"Ink colour",     IDS_OPT_INK_COLOUR,     OPT_COLOR,  &o_ink,    nullptr },
+    { L"Accent colour",  IDS_OPT_ACCENT_COLOUR,  OPT_COLOR,  &o_accent, nullptr },
+    { L"Minute dimming", IDS_OPT_MINUTE_DIMMING, OPT_CHOICE, &o_dim,    DIMMING },
+    { L"Show date",      IDS_OPT_SHOW_DATE,      OPT_BOOL,   &o_date,   nullptr },
 };
 
 class StackFace : public IClockFace {
@@ -109,8 +109,9 @@ class StackFace : public IClockFace {
     }
 
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Stack"; }
+    UINT GetLabel() const override { return IDS_FACE_STACK; }
 
     // No static art — just the invisible hit-test wash. See (2).
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override

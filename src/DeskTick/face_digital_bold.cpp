@@ -75,9 +75,9 @@ static const float SEC_X0 = 200.0f, SEC_X1 = 225.0f;
 // better label while the date was always English. It cannot be one now: the two
 // forms are the user's own long and short date (LocDate), so the sample would be
 // a different string in each of the twenty locales and wrong in nineteen of
-// them. A description is what is left. Only labels are INI keys, so changing
-// choice text orphans nothing — the saved value is the index.
-static const WCHAR* const DATEFMT[] = { L"Long date", L"Short date", nullptr };
+// them. A description is what is left. Only an option's `key` is persisted, so
+// changing choice text orphans nothing — the saved value is the index.
+static const UINT DATEFMT[] = { IDS_CHOICE_LONG_DATE, IDS_CHOICE_SHORT_DATE, 0 };
 
 static int o_hour24 = 1;
 static int o_accent = RGB(227, 89, 46);
@@ -87,12 +87,12 @@ static int o_dfmt   = 0;
 static int o_panel  = 1;
 
 static const FaceOpt s_opts[] = {
-    { L"24-hour clock", OPT_BOOL,   &o_hour24, nullptr },
-    { L"Accent colour", OPT_COLOR,  &o_accent, nullptr },
-    { L"Text colour",   OPT_COLOR,  &o_text,   nullptr },
-    { L"Show date",     OPT_BOOL,   &o_date,   nullptr },
-    { L"Date format",   OPT_CHOICE, &o_dfmt,   DATEFMT },
-    { L"Show panel",    OPT_BOOL,   &o_panel,  nullptr },
+    { L"24-hour clock", IDS_OPT_HOUR24,        OPT_BOOL,   &o_hour24, nullptr },
+    { L"Accent colour", IDS_OPT_ACCENT_COLOUR, OPT_COLOR,  &o_accent, nullptr },
+    { L"Text colour",   IDS_OPT_TEXT_COLOUR,   OPT_COLOR,  &o_text,   nullptr },
+    { L"Show date",     IDS_OPT_SHOW_DATE,     OPT_BOOL,   &o_date,   nullptr },
+    { L"Date format",   IDS_OPT_DATE_FORMAT,   OPT_CHOICE, &o_dfmt,   DATEFMT },
+    { L"Show panel",    IDS_OPT_SHOW_PANEL,    OPT_BOOL,   &o_panel,  nullptr },
 };
 
 static const float DIGIT_ADV = TIME_SIZE * 0.5752f;        // 31.06
@@ -157,8 +157,9 @@ class DigitalBoldFace : public IClockFace {
     }
 
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Digital bold"; }
+    UINT GetLabel() const override { return IDS_FACE_DIGITAL_BOLD; }
 
     // Static art: the panel, sized by PanelHalf/PanelH to what is on it — or
     // the bare hit-test wash when the panel is off.

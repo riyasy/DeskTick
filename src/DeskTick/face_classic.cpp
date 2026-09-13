@@ -11,8 +11,8 @@
 // Dark and Light are two instances of one class, so each needs its own value
 // array and its own table; the table is a ctor argument. Every colour the
 // face draws lives here — the class itself holds no palette.
-static const WCHAR* const NUMERALS[] = { L"All 12", L"12, 3, 6, 9", L"None", nullptr };
-static const WCHAR* const TICKS[]    = { L"Minute", L"Hour", L"None", nullptr };
+static const UINT NUMERALS[] = { IDS_CHOICE_ALL_12, IDS_CHOICE_QUARTERS, IDS_CHOICE_NONE, 0 };
+static const UINT TICKS[]    = { IDS_CHOICE_MINUTE, IDS_CHOICE_HOUR, IDS_CHOICE_NONE, 0 };
 
 struct ClassicOpts {
     int face, mark, hand, accent, nums, ticks;
@@ -23,13 +23,13 @@ static ClassicOpts o_dark  = { RGB(20, 23, 28),    RGB(217, 219, 230),
 static ClassicOpts o_light = { RGB(245, 245, 250), RGB(38, 41, 48),
                                RGB(31, 33, 38),    RGB(242, 89, 77), 0, 0 };
 
-#define CLASSIC_TABLE(v) {                                        \
-    { L"Face colour",     OPT_COLOR,  &(v).face,   nullptr  },    \
-    { L"Marking colour",  OPT_COLOR,  &(v).mark,   nullptr  },    \
-    { L"Hand colour",     OPT_COLOR,  &(v).hand,   nullptr  },    \
-    { L"Accent colour",   OPT_COLOR,  &(v).accent, nullptr  },    \
-    { L"Numerals",        OPT_CHOICE, &(v).nums,   NUMERALS },    \
-    { L"Tick marks",      OPT_CHOICE, &(v).ticks,  TICKS    },    \
+#define CLASSIC_TABLE(v) {                                                               \
+    { L"Face colour",    IDS_OPT_FACE_COLOUR,    OPT_COLOR,  &(v).face,   nullptr  },    \
+    { L"Marking colour", IDS_OPT_MARKING_COLOUR, OPT_COLOR,  &(v).mark,   nullptr  },    \
+    { L"Hand colour",    IDS_OPT_HAND_COLOUR,    OPT_COLOR,  &(v).hand,   nullptr  },    \
+    { L"Accent colour",  IDS_OPT_ACCENT_COLOUR,  OPT_COLOR,  &(v).accent, nullptr  },    \
+    { L"Numerals",       IDS_OPT_NUMERALS,       OPT_CHOICE, &(v).nums,   NUMERALS },    \
+    { L"Tick marks",     IDS_OPT_TICK_MARKS,     OPT_CHOICE, &(v).ticks,  TICKS    },    \
 }
 
 static const FaceOpt s_darkOpts[]  = CLASSIC_TABLE(o_dark);
@@ -37,6 +37,7 @@ static const FaceOpt s_lightOpts[] = CLASSIC_TABLE(o_light);
 
 class ClassicFace : public IClockFace {
     const WCHAR*       m_name;
+    UINT               m_label;
     const ClassicOpts& m_o;
     const FaceOpt*     m_opts;
     int                m_nOpts;
@@ -49,12 +50,14 @@ public:
     // reaches this class as a bare pointer, where _countof cannot see it: the
     // only place the array's real length is still known is the construction
     // site, so that is where it has to be read.
-    ClassicFace(const WCHAR* name, const ClassicOpts& o,
+    ClassicFace(const WCHAR* name, UINT label, const ClassicOpts& o,
                 const FaceOpt* opts, int nOpts, float alpha)
-        : m_name(name), m_o(o), m_opts(opts), m_nOpts(nOpts), m_faceAlpha(alpha) {}
+        : m_name(name), m_label(label), m_o(o), m_opts(opts), m_nOpts(nOpts),
+          m_faceAlpha(alpha) {}
 
-    // Menu label, and the INI section this instance's options are saved under.
+    // The INI section this instance's options are saved under, and its menu label.
     const WCHAR* GetName() const override { return m_name; }
+    UINT GetLabel() const override { return m_label; }
 
     // This instance's knobs, in the order the dialog lays them out.
     int GetOptions(const FaceOpt** out) const override
@@ -125,9 +128,9 @@ public:
     }
 };
 
-static const ClassicFace s_dark (L"Classic dark",  o_dark,  s_darkOpts,
+static const ClassicFace s_dark (L"Classic dark",  IDS_FACE_CLASSIC_DARK,  o_dark,  s_darkOpts,
                                  _countof(s_darkOpts),  0.90f);
-static const ClassicFace s_light(L"Classic light", o_light, s_lightOpts,
+static const ClassicFace s_light(L"Classic light", IDS_FACE_CLASSIC_LIGHT, o_light, s_lightOpts,
                                  _countof(s_lightOpts), 0.94f);
 
 extern const IClockFace* const g_faceClassicDark  = &s_dark;

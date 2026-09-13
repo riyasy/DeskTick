@@ -11,6 +11,7 @@
 
 #pragma once
 #include <windows.h>
+#include "Localization/strings.h"
 
 struct IClockFace;
 struct FaceOpt;
@@ -62,26 +63,24 @@ void ReflushMenuTheme();
 
 // Locate a folder shipped beside the exe, walking up a few levels so a dev run
 // out of DeskTick\x64\Release still finds it. False if there is none, and `out` is
-// then untouched. assets.cpp wants `assets`, loc.cpp wants `lang`.
+// then untouched. assets.cpp wants `assets`.
 bool FindNearExe(const WCHAR* name, WCHAR* out, size_t cch);
 
 // ------------------------------------------------------------------
 // loc.cpp — the UI language
 // ------------------------------------------------------------------
 
-// Load the translation file for the user's Windows language, once at startup.
-// Call before anything builds a menu, a dialog or a date. No file, or no
-// language folder, and every T() below simply answers in English.
+// Pick the string table built into the exe that matches the user's Windows
+// display language, once at startup. Call before anything builds a menu, a
+// dialog or a date. No matching language and every T() answers in English.
 void LocInit();
 
-// Translate one UI string. The English text IS the key — there are no numeric
-// ids to allocate and nothing to keep in sync, and an untranslated or missing
-// string answers itself, so English can never regress.
-//
-// The corollary is that the English literals at the call sites are load-bearing
-// identifiers: changing one silently drops its translations, exactly the way
-// renaming a FaceOpt label drops what was saved under it.
-const WCHAR* T(const WCHAR* en);
+// The string for an IDS_ id from Localization\strings.h, in the chosen
+// language. Never null: the pointer is into the exe's own resources,
+// null-terminated (strings.rc is compiled with /n) and valid for the life of
+// the process. A blank translation was filled with English when strings.rc
+// was generated, so there is no fallback to do here.
+const WCHAR* T(UINT id);
 
 // Whether the UI language reads right-to-left. Only the two windows and the
 // menu care; the dial is a circle.
@@ -142,7 +141,7 @@ const WCHAR* Section(const IClockFace* f);
 
 // Force one option's value into range. Everything read from the INI goes
 // through this: an out-of-range choice index would index past the
-// null-terminated `choices` array on the very next repaint.
+// 0-terminated `choices` array on the very next repaint.
 void ClampOpt(const FaceOpt& o);
 
 // Put one face's options back to the values it was built with.

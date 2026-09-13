@@ -65,8 +65,8 @@ HWND FindDefView()
 // ------------------------------------------------------------------
 
 // Look for `name` next to the exe, then walking up a few levels — which covers
-// running out of DeskTick\x64\Release with the folder in DeskTick\. Two callers want
-// exactly this: assets.cpp for `assets`, loc.cpp for `lang`.
+// running out of DeskTick\x64\Release with the folder in DeskTick\. assets.cpp is
+// the caller, for `assets`.
 //
 // StringCchPrintfW rather than wsprintfW: this joins a MAX_PATH directory and a
 // name into a MAX_PATH buffer, which is the one case wsprintfW's missing size

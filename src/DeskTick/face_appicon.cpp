@@ -15,7 +15,7 @@ static const float CIRCLE_R = 105.0f;   // 96 × 240/220
 // ---- options ----
 // "Circle" is just the plate radius taken to half the square, which turns
 // the rounded square into a disc — no separate code path.
-static const WCHAR* const SHAPES[] = { L"Rounded", L"Square", L"Circle", nullptr };
+static const UINT SHAPES[] = { IDS_CHOICE_ROUNDED, IDS_CHOICE_SQUARE, IDS_CHOICE_CIRCLE, 0 };
 static const float SHAPE_R[] = { 41.0f, 0.0f, DIAL / 2 - 1 };
 // ClampOpt can only count the string list, so a fourth name without a fourth
 // radius would clamp clean and then read past SHAPE_R. +1 for the terminator.
@@ -28,17 +28,18 @@ static int o_accent = RGB(224, 61, 28);
 static int o_shape  = 0;
 
 static const FaceOpt s_opts[] = {
-    { L"Plate colour",  OPT_COLOR,  &o_plate,  nullptr },
-    { L"Dial colour",   OPT_COLOR,  &o_dial,   nullptr },
-    { L"Ink colour",    OPT_COLOR,  &o_ink,    nullptr },
-    { L"Accent colour", OPT_COLOR,  &o_accent, nullptr },
-    { L"Plate shape",   OPT_CHOICE, &o_shape,  SHAPES  },
+    { L"Plate colour",  IDS_OPT_PLATE_COLOUR,  OPT_COLOR,  &o_plate,  nullptr },
+    { L"Dial colour",   IDS_OPT_DIAL_COLOUR,   OPT_COLOR,  &o_dial,   nullptr },
+    { L"Ink colour",    IDS_OPT_INK_COLOUR,    OPT_COLOR,  &o_ink,    nullptr },
+    { L"Accent colour", IDS_OPT_ACCENT_COLOUR, OPT_COLOR,  &o_accent, nullptr },
+    { L"Plate shape",   IDS_OPT_PLATE_SHAPE,   OPT_CHOICE, &o_shape,  SHAPES  },
 };
 
 class AppIconFace : public IClockFace {
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Icon"; }
+    UINT GetLabel() const override { return IDS_FACE_ICON; }
 
     // Static art: the plate, the light circle on it, and twelve numerals.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override

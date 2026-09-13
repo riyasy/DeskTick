@@ -65,11 +65,11 @@ static int o_hour24    = 1;
 static int o_date      = 1;
 
 static const FaceOpt s_opts[] = {
-    { L"Hour block colour",   OPT_COLOR, &o_hourBlock, nullptr },
-    { L"Minute block colour", OPT_COLOR, &o_minBlock,  nullptr },
-    { L"Digit colour",        OPT_COLOR, &o_digit,     nullptr },
-    { L"24-hour clock",       OPT_BOOL,  &o_hour24,    nullptr },
-    { L"Show date",           OPT_BOOL,  &o_date,      nullptr },
+    { L"Hour block colour",   IDS_OPT_HOUR_BLOCK,   OPT_COLOR, &o_hourBlock, nullptr },
+    { L"Minute block colour", IDS_OPT_MINUTE_BLOCK, OPT_COLOR, &o_minBlock,  nullptr },
+    { L"Digit colour",        IDS_OPT_DIGIT_COLOUR, OPT_COLOR, &o_digit,     nullptr },
+    { L"24-hour clock",       IDS_OPT_HOUR24,       OPT_BOOL,  &o_hour24,    nullptr },
+    { L"Show date",           IDS_OPT_SHOW_DATE,    OPT_BOOL,  &o_date,      nullptr },
 };
 
 class SplitFace : public IClockFace {
@@ -113,8 +113,9 @@ class SplitFace : public IClockFace {
     }
 
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Split"; }
+    UINT GetLabel() const override { return IDS_FACE_SPLIT; }
 
     // Static art: the hit-test wash and the two blocks.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override

@@ -48,7 +48,7 @@ static const float SHADOW_A  = 0.5f;
 // Same list and order as Digital bold, which draws the same two forms. They
 // describe rather than sample, because the sample would differ per locale —
 // see the note beside Digital bold's copy.
-static const WCHAR* const DATEFMT[] = { L"Long date", L"Short date", nullptr };
+static const UINT DATEFMT[] = { IDS_CHOICE_LONG_DATE, IDS_CHOICE_SHORT_DATE, 0 };
 
 static int o_hour24 = 1;
 static int o_ink    = RGB(255, 255, 255);
@@ -57,11 +57,11 @@ static int o_dfmt   = 0;
 static int o_shadow = 1;
 
 static const FaceOpt s_opts[] = {
-    { L"24-hour clock", OPT_BOOL,   &o_hour24, nullptr },
-    { L"Ink colour",    OPT_COLOR,  &o_ink,    nullptr },
-    { L"Show date",     OPT_BOOL,   &o_date,   nullptr },
-    { L"Date format",   OPT_CHOICE, &o_dfmt,   DATEFMT },
-    { L"Drop shadow",   OPT_BOOL,   &o_shadow, nullptr },
+    { L"24-hour clock", IDS_OPT_HOUR24,      OPT_BOOL,   &o_hour24, nullptr },
+    { L"Ink colour",    IDS_OPT_INK_COLOUR,  OPT_COLOR,  &o_ink,    nullptr },
+    { L"Show date",     IDS_OPT_SHOW_DATE,   OPT_BOOL,   &o_date,   nullptr },
+    { L"Date format",   IDS_OPT_DATE_FORMAT, OPT_CHOICE, &o_dfmt,   DATEFMT },
+    { L"Drop shadow",   IDS_OPT_DROP_SHADOW, OPT_BOOL,   &o_shadow, nullptr },
 };
 
 class BannerFace : public IClockFace {
@@ -102,8 +102,9 @@ class BannerFace : public IClockFace {
     }
 
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Banner"; }
+    UINT GetLabel() const override { return IDS_FACE_BANNER; }
 
     // No static art — just the hit-test wash, or the transparent square
     // would be click-through everywhere but the glyphs.

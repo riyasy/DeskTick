@@ -81,7 +81,7 @@ const WCHAR* Section(const IClockFace* f)
     return f == g_faceImage ? L"Image" : f->GetName();
 }
 
-// How many entries an OPT_CHOICE has; its `choices` array is null-terminated.
+// How many entries an OPT_CHOICE has; its `choices` array is 0-terminated.
 static int ChoiceCount(const FaceOpt& o)
 {
     int n = 0;
@@ -91,7 +91,7 @@ static int ChoiceCount(const FaceOpt& o)
 
 // Anything read from the INI is user-editable text: clamp it before it
 // reaches a face. An out-of-range choice index would index past the
-// null-terminated `choices` array on the very next repaint.
+// 0-terminated `choices` array on the very next repaint.
 void ClampOpt(const FaceOpt& o)
 {
     int v = *o.value;
@@ -114,7 +114,7 @@ static void LoadFace(const IClockFace* f)
     int n = f->GetOptions(&o);
     for (int i = 0; i < n; i++) {
         WCHAR buf[32];
-        GetPrivateProfileStringW(Section(f), o[i].label, L"", buf, 32, IniPath());
+        GetPrivateProfileStringW(Section(f), o[i].key, L"", buf, 32, IniPath());
         if (!buf[0]) continue;                          // absent: keep the default
         long v = wcstol(buf, nullptr, o[i].kind == OPT_COLOR ? 16 : 10);
         // Stored RRGGBB, but COLORREF is 0x00BBGGRR — swap on the way in.
@@ -137,7 +137,7 @@ static void SaveFace(const IClockFace* f)
             wsprintfW(buf, L"%02X%02X%02X", GetRValue(v), GetGValue(v), GetBValue(v));
         else
             wsprintfW(buf, L"%d", v);
-        WritePrivateProfileStringW(Section(f), o[i].label, buf, IniPath());
+        WritePrivateProfileStringW(Section(f), o[i].key, buf, IniPath());
     }
 }
 

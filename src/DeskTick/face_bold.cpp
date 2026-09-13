@@ -10,12 +10,11 @@
 static const float R = RADIUS - 6;      // room for the border + offset shadow
 
 // ---- options ----
-// "Normal width", not "Normal": choice strings are translated by their English
-// text, so a bare "Normal" here and in Dots' size list would share one
-// translation — and in a language whose adjectives agree with their noun, one
-// word cannot serve a width and a size. Free to rename: only the index is
-// persisted (settings.cpp), never the text.
-static const WCHAR* const RING_W[] = { L"Thin", L"Normal width", L"Thick", nullptr };
+// "Normal width", not "Normal": a bare "Normal" here and in Dots' size list
+// would invite one shared row in translations.csv — and in a language whose
+// adjectives agree with their noun, one word cannot serve a width and a size.
+// Free to reword: only the index is persisted (settings.cpp), never the text.
+static const UINT RING_W[] = { IDS_CHOICE_THIN, IDS_CHOICE_NORMAL_WIDTH, IDS_CHOICE_THICK, 0 };
 static const float RING_PX[] = { 4.0f, 6.0f, 9.0f };
 // ClampOpt can only count the string list, so a fourth name without a fourth
 // width would clamp clean and then read past RING_PX. +1 for the terminator.
@@ -27,16 +26,17 @@ static int o_accent = RGB(255, 0, 0);
 static int o_ringW  = 1;
 
 static const FaceOpt s_opts[] = {
-    { L"Face colour",    OPT_COLOR,  &o_face,   nullptr },
-    { L"Ring colour",    OPT_COLOR,  &o_ring,   nullptr },
-    { L"Accent colour",  OPT_COLOR,  &o_accent, nullptr },
-    { L"Ring thickness", OPT_CHOICE, &o_ringW,  RING_W  },
+    { L"Face colour",    IDS_OPT_FACE_COLOUR,    OPT_COLOR,  &o_face,   nullptr },
+    { L"Ring colour",    IDS_OPT_RING_COLOUR,    OPT_COLOR,  &o_ring,   nullptr },
+    { L"Accent colour",  IDS_OPT_ACCENT_COLOUR,  OPT_COLOR,  &o_accent, nullptr },
+    { L"Ring thickness", IDS_OPT_RING_THICKNESS, OPT_CHOICE, &o_ringW,  RING_W  },
 };
 
 class BoldFace : public IClockFace {
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Bold"; }
+    UINT GetLabel() const override { return IDS_FACE_BOLD; }
 
     // Static art: drop shadow, the two-tone face, and the heavy ring.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override

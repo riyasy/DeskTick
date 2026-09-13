@@ -16,16 +16,17 @@ static int o_hand   = RGB(235, 235, 235);
 static int o_accent = RGB(255, 99, 71);     // tomato
 
 static const FaceOpt s_opts[] = {
-    { L"Dial colour",   OPT_COLOR, &o_dial,   nullptr },
-    { L"Rim colour",    OPT_COLOR, &o_rim,    nullptr },
-    { L"Hand colour",   OPT_COLOR, &o_hand,   nullptr },
-    { L"Accent colour", OPT_COLOR, &o_accent, nullptr },
+    { L"Dial colour",   IDS_OPT_DIAL_COLOUR,   OPT_COLOR, &o_dial,   nullptr },
+    { L"Rim colour",    IDS_OPT_RIM_COLOUR,    OPT_COLOR, &o_rim,    nullptr },
+    { L"Hand colour",   IDS_OPT_HAND_COLOUR,   OPT_COLOR, &o_hand,   nullptr },
+    { L"Accent colour", IDS_OPT_ACCENT_COLOUR, OPT_COLOR, &o_accent, nullptr },
 };
 
 class FlatFace : public IClockFace {
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Flat"; }
+    UINT GetLabel() const override { return IDS_FACE_FLAT; }
 
     // Static art: the rim, the face inside it, and the ring of 60 dots.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override

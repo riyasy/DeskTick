@@ -12,11 +12,11 @@ static const float RING = 93.0f;                // dot ring radius
 // ---- options ----
 // Counts ascend, because a list of numbers that doesn't reads as a mistake.
 // The default is whichever index holds it — here, the middle one.
-static const WCHAR* const COUNTS[] = { L"4", L"12", L"60", nullptr };
-static const int   COUNT_N[]  = { 4, 12, 60 };
+static const UINT  COUNTS[]  = { IDS_CHOICE_DOTS_4, IDS_CHOICE_DOTS_12, IDS_CHOICE_DOTS_60, 0 };
+static const int   COUNT_N[] = { 4, 12, 60 };
 // "Normal size" rather than "Normal", so it cannot share a translation with
 // Bold's ring width — see the note there.
-static const WCHAR* const SIZES[]  = { L"Small", L"Normal size", L"Large", nullptr };
+static const UINT  SIZES[]   = { IDS_CHOICE_SMALL, IDS_CHOICE_NORMAL_SIZE, IDS_CHOICE_LARGE, 0 };
 static const float SIZE_PX[] = { 2.6f, 4.0f, 6.0f };
 // ClampOpt can only count the string lists, so a fourth choice without its
 // value would clamp clean and then read past these. +1 for the terminator.
@@ -28,15 +28,16 @@ static int o_count = 1;                     // 12 dots — index 1 in COUNTS
 static int o_size  = 1;
 
 static const FaceOpt s_opts[] = {
-    { L"Ink colour", OPT_COLOR,  &o_ink,   nullptr },
-    { L"Dot count",  OPT_CHOICE, &o_count, COUNTS  },
-    { L"Dot size",   OPT_CHOICE, &o_size,  SIZES   },
+    { L"Ink colour", IDS_OPT_INK_COLOUR, OPT_COLOR,  &o_ink,   nullptr },
+    { L"Dot count",  IDS_OPT_DOT_COUNT,  OPT_CHOICE, &o_count, COUNTS  },
+    { L"Dot size",   IDS_OPT_DOT_SIZE,   OPT_CHOICE, &o_size,  SIZES   },
 };
 
 class DotsFace : public IClockFace {
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Dots"; }
+    UINT GetLabel() const override { return IDS_FACE_DOTS; }
 
     // Static art: the hit-test wash and the ring of dots, count and size as
     // the two choices ask for.

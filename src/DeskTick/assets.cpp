@@ -23,9 +23,8 @@ static WCHAR s_dir[MAX_PATH];                   // resolved assets folder ("" if
 static WCHAR s_names[MAX_FACES][MAX_PATH];      // filenames, as listed
 static int   s_n;
 
-// Find the assets folder next to the exe (FindNearExe, winutil.cpp — the same
-// walk lang\ needs). Leaves s_dir empty if there is none, and everything below
-// then reports nothing.
+// Find the assets folder next to the exe (FindNearExe, winutil.cpp). Leaves
+// s_dir empty if there is none, and everything below then reports nothing.
 void AssetsInit()
 {
     FindNearExe(L"assets", s_dir, _countof(s_dir));

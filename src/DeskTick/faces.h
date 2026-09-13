@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <d2d1.h>
 #include <dwrite.h>
+#include "Localization/strings.h"    // the IDS_ ids a face names itself and its options by
 
 // ---- layout, all in a fixed 240-DIP logical space shared by the engine
 // ---- and every face. Resize just changes the DPI we hand Direct2D. ----
@@ -32,11 +33,16 @@ template <class T> void SafeRelease(T*& p) { if (p) { p->Release(); p = nullptr;
 // ------------------------------------------------------------------
 enum OptKind { OPT_BOOL, OPT_CHOICE, OPT_COLOR };
 
+// The INI key and the dialog label are separate on purpose. `key` is what
+// DeskTick.ini is written under and stays an English literal forever; `label`
+// is an IDS_ id whose text lives in Localization\translations.csv and is free
+// to be reworded — rewording it drops no one's saved settings.
 struct FaceOpt {
-    const WCHAR*        label;     // dialog label AND INI key
+    const WCHAR*        key;       // INI key: never rename
+    UINT                label;     // IDS_ id of the dialog label
     OptKind             kind;
     int*                value;
-    const WCHAR* const* choices;   // OPT_CHOICE only, null-terminated
+    const UINT*         choices;   // OPT_CHOICE only: IDS_ ids, 0-terminated
 };
 
 // COLORREF -> D2D. Alpha is supplied by the caller because ChooseColorW
@@ -52,7 +58,11 @@ D2D1_COLOR_F FromRGB(int c, float a = 1.0f);
 struct IClockFace {
     // No virtual destructor: instances are static const, never deleted
     // through the base pointer.
+    // The face's identity: the INI section its options save under. English,
+    // and never renamed — see GetLabel for what the user reads.
     virtual const WCHAR* GetName() const = 0;
+    // IDS_ id of the name shown in the Face menu and the Customize title.
+    virtual UINT GetLabel() const = 0;
     // Draw the static dial into the 240-DIP scene. Return false if the dial
     // couldn't be drawn (e.g. image load failure) — the engine then falls
     // back to the default face.

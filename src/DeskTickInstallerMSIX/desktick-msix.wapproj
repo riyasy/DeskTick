@@ -67,17 +67,14 @@
     <Content Include="Images\*.png" />
     <None Include="Package.StoreAssociation.xml" />
   </ItemGroup>
-  <!-- The translations and the image faces. DesktopBridge packages the
-       referenced project's build *outputs*, not everything sitting in its output
-       folder, and neither of these folders is a build output — the loose exe
-       finds them by walking up from itself (FindNearExe). So they have to be
-       named here, and the Link is what puts them beside the exe inside the
-       package's DeskTick\ folder, where that same walk finds them first.
-       Without this the MSIX ships English-only and with no image faces. -->
+  <!-- The image faces. DesktopBridge packages the referenced project's build
+       *outputs*, not everything sitting in its output folder, and assets\ is not
+       a build output — the loose exe finds it by walking up from itself
+       (FindNearExe). So it has to be named here, and the Link is what puts it
+       beside the exe inside the package's DeskTick\ folder, where that same walk
+       finds it first. Without this the MSIX ships with no image faces.
+       The translations need no line: they are compiled into the exe. -->
   <ItemGroup>
-    <Content Include="..\DeskTick\lang\*.ini">
-      <Link>DeskTick\lang\%(Filename)%(Extension)</Link>
-    </Content>
     <Content Include="..\DeskTick\assets\*.png">
       <Link>DeskTick\assets\%(Filename)%(Extension)</Link>
     </Content>

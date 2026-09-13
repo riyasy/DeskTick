@@ -17,12 +17,12 @@ static int o_accent = RGB(171, 0, 0);
 static int o_mark12 = 1;                    // 12 o'clock tick drawn in the accent
 
 static const FaceOpt s_opts[] = {
-    { L"Dial colour",       OPT_COLOR, &o_dial,   nullptr },
-    { L"Hand colour",       OPT_COLOR, &o_hand,   nullptr },
-    { L"Accent colour",     OPT_COLOR, &o_accent, nullptr },
+    { L"Dial colour",      IDS_OPT_DIAL_COLOUR,   OPT_COLOR, &o_dial,   nullptr },
+    { L"Hand colour",      IDS_OPT_HAND_COLOUR,   OPT_COLOR, &o_hand,   nullptr },
+    { L"Accent colour",    IDS_OPT_ACCENT_COLOUR, OPT_COLOR, &o_accent, nullptr },
     // Draws the 12 o'clock tick in the accent colour; off, it takes the same
     // darker shade of the dial as the 3/6/9 ticks.
-    { L"Accent 12 marker",  OPT_BOOL,  &o_mark12, nullptr },
+    { L"Accent 12 marker", IDS_OPT_ACCENT_12,     OPT_BOOL,  &o_mark12, nullptr },
 };
 
 // Lighten/darken a configured colour by `d` so a single knob can still feed
@@ -38,8 +38,9 @@ static D2D1_COLOR_F Shade(int c, float d, float a = 1.0f)
 
 class MinimalFace : public IClockFace {
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Minimal"; }
+    UINT GetLabel() const override { return IDS_FACE_MINIMAL; }
 
     // Static art: shadow, the two opposing gradients that make the emboss,
     // and the twelve hour ticks.

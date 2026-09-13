@@ -62,13 +62,13 @@ static int o_text   = RGB(247, 247, 250);
 static int o_muted  = RGB(158, 184, 217);
 
 static const FaceOpt s_opts[] = {
-    { L"24-hour clock", OPT_BOOL,  &o_hour24, nullptr },
-    { L"Show AM/PM",    OPT_BOOL,  &o_ampm,   nullptr },
-    { L"Show date",     OPT_BOOL,  &o_date,   nullptr },
-    { L"Show panel",    OPT_BOOL,  &o_panel,  nullptr },
-    { L"Text colour",   OPT_COLOR, &o_text,   nullptr },
+    { L"24-hour clock", IDS_OPT_HOUR24,       OPT_BOOL,  &o_hour24, nullptr },
+    { L"Show AM/PM",    IDS_OPT_SHOW_AMPM,    OPT_BOOL,  &o_ampm,   nullptr },
+    { L"Show date",     IDS_OPT_SHOW_DATE,    OPT_BOOL,  &o_date,   nullptr },
+    { L"Show panel",    IDS_OPT_SHOW_PANEL,   OPT_BOOL,  &o_panel,  nullptr },
+    { L"Text colour",   IDS_OPT_TEXT_COLOUR,  OPT_COLOR, &o_text,   nullptr },
     // Colours every label on the bar: the month, weekday, AM/PM and seconds.
-    { L"Label colour",  OPT_COLOR, &o_muted,  nullptr },
+    { L"Label colour",  IDS_OPT_LABEL_COLOUR, OPT_COLOR, &o_muted,  nullptr },
 };
 
 // Worked out in one place because two callers must agree on it: DrawDial
@@ -106,8 +106,9 @@ class DigitalFace : public IClockFace {
     }
 
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Digital"; }
+    UINT GetLabel() const override { return IDS_FACE_DIGITAL; }
 
     // Static part only: the translucent bar. Everything time-dependent is text
     // and therefore lives in DrawHands.

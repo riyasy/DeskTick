@@ -102,10 +102,10 @@ static int o_panel  = RGB(10, 13, 18);
 static int o_dots   = 1;
 
 static const FaceOpt s_opts[] = {
-    { L"Lit letter colour", OPT_COLOR, &o_lit,    nullptr },
-    { L"Accent colour",     OPT_COLOR, &o_accent, nullptr },
-    { L"Panel colour",      OPT_COLOR, &o_panel,  nullptr },
-    { L"Show minute dots",  OPT_BOOL,  &o_dots,   nullptr },
+    { L"Lit letter colour", IDS_OPT_LIT_LETTER,       OPT_COLOR, &o_lit,    nullptr },
+    { L"Accent colour",     IDS_OPT_ACCENT_COLOUR,    OPT_COLOR, &o_accent, nullptr },
+    { L"Panel colour",      IDS_OPT_PANEL_COLOUR,     OPT_COLOR, &o_panel,  nullptr },
+    { L"Show minute dots",  IDS_OPT_SHOW_MINUTE_DOTS, OPT_BOOL,  &o_dots,   nullptr },
 };
 
 class WordFace : public IClockFace {
@@ -134,8 +134,9 @@ class WordFace : public IClockFace {
     }
 
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Word clock"; }
+    UINT GetLabel() const override { return IDS_FACE_WORD; }
 
     // The whole dim grid bakes in here — 110 glyphs drawn once per size.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override

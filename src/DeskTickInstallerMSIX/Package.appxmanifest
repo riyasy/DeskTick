@@ -33,11 +33,13 @@
 
   <!-- The languages the UI is actually translated into, which is what the Store
        lists under "Supported languages". This does NOT drive language selection
-       at runtime: loc.cpp resolves GetUserPreferredUILanguages against the loose
-       lang\*.ini files itself, and MRT never sees them. It has to be an explicit
-       list rather than x-generate for exactly that reason — x-generate infers
-       the set from MRT resources, finds only en-US, and advertises the app as
-       English-only. Keep in step with Src\DeskTick\lang\. -->
+       at runtime: loc.cpp resolves GetUserPreferredUILanguages against the
+       STRINGTABLEs compiled into the exe itself, and MRT never sees those. It
+       has to be an explicit list rather than x-generate for exactly that reason
+       — x-generate infers the set from MRT resources, finds only en-US, and
+       advertises the app as English-only. Keep in step with the locale columns
+       of DeskTick\Localization\translations.csv — all but qps-ploc, the
+       pseudo-locale, which is a test tool and not a language to advertise. -->
   <Resources>
     <Resource Language="en-US"/>
     <Resource Language="ar-SA"/>

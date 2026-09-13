@@ -118,7 +118,7 @@ $mb = "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin
 & $mb src\DeskTick\DeskTick.vcxproj -p:Configuration=Release -p:Platform=x64
 ```
 
-Output lands in `src\DeskTick\x64\Release\DeskTick.exe`. The `lang\` folder ships beside the exe - without it the UI is English.
+Output lands in `src\DeskTick\x64\Release\DeskTick.exe`. Every translation is compiled in, so the exe is the whole app.
 
 ---
 
@@ -126,7 +126,7 @@ Output lands in `src\DeskTick\x64\Release\DeskTick.exe`. The `lang\` folder ship
 
 Twenty languages: Arabic, Chinese (Simplified & Traditional), Dutch, English, Finnish, French, German, Hungarian, Italian, Japanese, Korean, Malayalam, Polish, Portuguese (Brazil & Portugal), Russian, Spanish, Swedish, Ukrainian.
 
-Each is one `lang\<locale>.ini` file keyed by the English string, so adding a language is a file copy and a translation pass - no code, no rebuild. Pull requests welcome.
+All of them live in one spreadsheet, `src\DeskTick\Localization\translations.csv`: a row per string, a column per language, and a `context` column saying where each string appears. Adding a language is a new column and a translation pass; then run `Localization\build.ps1` and rebuild. Pull requests welcome.
 
 ---
 

@@ -17,8 +17,8 @@ static const float FR = RADIUS - 3;      // face radius, room for the shadow
 // Same list and same order as face_classic.cpp: two faces offering the same
 // choice in a different order is a trap when you switch between them. Where
 // the defaults differ, the default moves — the list does not.
-static const WCHAR* const NUMERALS[] = { L"All 12", L"12, 3, 6, 9", L"None", nullptr };
-static const WCHAR* const TICKS[]    = { L"Minute", L"Hour", L"None", nullptr };
+static const UINT NUMERALS[] = { IDS_CHOICE_ALL_12, IDS_CHOICE_QUARTERS, IDS_CHOICE_NONE, 0 };
+static const UINT TICKS[]    = { IDS_CHOICE_MINUTE, IDS_CHOICE_HOUR, IDS_CHOICE_NONE, 0 };
 
 static int o_face   = RGB(255, 255, 255);
 static int o_hand   = RGB(20, 20, 20);
@@ -27,11 +27,11 @@ static int o_nums   = 1;                    // 12, 3, 6, 9 — index 1 in NUMERA
 static int o_ticks  = 0;
 
 static const FaceOpt s_opts[] = {
-    { L"Face colour",   OPT_COLOR,  &o_face,   nullptr  },
-    { L"Hand colour",   OPT_COLOR,  &o_hand,   nullptr  },
-    { L"Accent colour", OPT_COLOR,  &o_accent, nullptr  },
-    { L"Numerals",      OPT_CHOICE, &o_nums,   NUMERALS },
-    { L"Tick marks",    OPT_CHOICE, &o_ticks,  TICKS    },
+    { L"Face colour",   IDS_OPT_FACE_COLOUR,   OPT_COLOR,  &o_face,   nullptr  },
+    { L"Hand colour",   IDS_OPT_HAND_COLOUR,   OPT_COLOR,  &o_hand,   nullptr  },
+    { L"Accent colour", IDS_OPT_ACCENT_COLOUR, OPT_COLOR,  &o_accent, nullptr  },
+    { L"Numerals",      IDS_OPT_NUMERALS,      OPT_CHOICE, &o_nums,   NUMERALS },
+    { L"Tick marks",    IDS_OPT_TICK_MARKS,    OPT_CHOICE, &o_ticks,  TICKS    },
 };
 
 // Kite-shaped hand: sharp tip at `len` above center, widest (`halfW`)
@@ -58,8 +58,9 @@ class SimpleFace : public IClockFace {
     mutable ID2D1PathGeometry* m_min    = nullptr;
     mutable ID2D1StrokeStyle*  m_round  = nullptr; // round joins: softens corners
 public:
-    // Menu label, and the INI section the options above are saved under.
+    // The INI section the options above are saved under, then the menu label.
     const WCHAR* GetName() const override { return L"Simple"; }
+    UINT GetLabel() const override { return IDS_FACE_SIMPLE; }
 
     // Static art: shadow, face, tick marks and numerals — the last two as the
     // Numerals and Tick marks choices ask for.

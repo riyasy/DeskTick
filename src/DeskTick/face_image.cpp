@@ -55,8 +55,8 @@ static int o_hand   = RGB(31, 33, 38);      // matches DARK_HAND
 static int o_accent = RGB(242, 89, 77);
 
 static const FaceOpt s_opts[] = {
-    { L"Hand colour",   OPT_COLOR, &o_hand,   nullptr },
-    { L"Accent colour", OPT_COLOR, &o_accent, nullptr },
+    { L"Hand colour",   IDS_OPT_HAND_COLOUR,   OPT_COLOR, &o_hand,   nullptr },
+    { L"Accent colour", IDS_OPT_ACCENT_COLOUR, OPT_COLOR, &o_accent, nullptr },
 };
 
 class ImageFace : public IClockFace {
@@ -80,6 +80,7 @@ public:
     // The image's full path. settings.cpp maps this to a fixed INI section, so
     // one file per picture is never written.
     const WCHAR* GetName() const override { return m_path; }
+    UINT GetLabel() const override { return IDS_FACE_IMAGE; }
     // Static art: the image, scaled to the dial. False if it cannot be loaded,
     // which sends the engine to the default face.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush*) const override

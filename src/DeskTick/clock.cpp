@@ -561,12 +561,13 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         int nAssets = AssetsRefresh();
         HMENU faces = CreatePopupMenu();
         for (int i = 0; i < NUM_BUILTIN; i++)
-            // GetName() is the face's identity — the INI section it saves under
-            // (settings.cpp) — so it stays English and only the label is
-            // translated. Word clock is named in every language and still draws
-            // its English letter grid; the grid is not translatable text.
+            // GetLabel(), not GetName(): the name is the face's identity — the
+            // INI section it saves under (settings.cpp) — so it stays English,
+            // and only the label is translated. Word clock is named in every
+            // language and still draws its English letter grid; the grid is not
+            // translatable text.
             AppendMenuW(faces, MF_STRING | (g_face == i ? MF_CHECKED : 0),
-                        CMD_FACE0 + i, T(g_builtinFaces[i]->GetName()));
+                        CMD_FACE0 + i, T(g_builtinFaces[i]->GetLabel()));
         // Separator only if there is something after it: with no assets folder
         // the built-in list would otherwise end on a rule with nothing under it.
         if (nAssets) AppendMenuW(faces, MF_SEPARATOR, 0, nullptr);
@@ -585,31 +586,26 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         // Grouped: what the clock shows, then what it lives on, then leaving.
         HMENU m = CreatePopupMenu();
         // "Show seconds" covers the six text faces too, which have no hand.
-        AppendMenuW(m, MF_STRING | (g_seconds ? MF_CHECKED : 0), CMD_SECONDS, T(L"Show seconds"));
-        // The ellipsis is a universal character name because this .cpp has no
-        // BOM: MSVC reads the file in the system codepage, so a pasted U+2026
-        // would reach the menu as mojibake. \u2026 is resolved by the compiler
-        // whatever the encoding. It is also part of the T() key, so lang\*.ini
-        // spells it as a real U+2026 \u2014 those files are UTF-16 and can.
-        AppendMenuW(m, MF_STRING, CMD_CONFIG, T(L"Customize Face\u2026"));
-        AppendMenuW(m, MF_STRING | (g_resize  ? MF_CHECKED : 0), CMD_RESIZE,  T(L"Resize"));
+        AppendMenuW(m, MF_STRING | (g_seconds ? MF_CHECKED : 0), CMD_SECONDS, T(IDS_MENU_SHOW_SECONDS));
+        AppendMenuW(m, MF_STRING, CMD_CONFIG, T(IDS_MENU_CUSTOMIZE));
+        AppendMenuW(m, MF_STRING | (g_resize  ? MF_CHECKED : 0), CMD_RESIZE,  T(IDS_MENU_RESIZE));
         AppendMenuW(m, MF_SEPARATOR, 0, nullptr);
-        AppendMenuW(m, MF_POPUP, (UINT_PTR)faces, T(L"Face"));
+        AppendMenuW(m, MF_POPUP, (UINT_PTR)faces, T(IDS_MENU_FACE));
         AppendMenuW(m, MF_SEPARATOR, 0, nullptr);
         // Where the clock lives rather than what it shows: above other windows,
         // present at logon, reachable from the notification area. The first and
         // third are ours to remember (DeskTick.ini); the second is a registry value
         // Windows itself reads, so it is asked for fresh every time the menu
         // opens: the user may well have unticked it in Task Manager since.
-        AppendMenuW(m, MF_STRING | (g_topmost ? MF_CHECKED : 0), CMD_TOPMOST, T(L"Always on top"));
-        AppendMenuW(m, MF_STRING | (StartupEnabled() ? MF_CHECKED : 0), CMD_STARTUP, T(L"Start with Windows"));
-        AppendMenuW(m, MF_STRING | (g_tray ? MF_CHECKED : 0), CMD_TRAY, T(L"Show in system tray"));
+        AppendMenuW(m, MF_STRING | (g_topmost ? MF_CHECKED : 0), CMD_TOPMOST, T(IDS_MENU_TOPMOST));
+        AppendMenuW(m, MF_STRING | (StartupEnabled() ? MF_CHECKED : 0), CMD_STARTUP, T(IDS_MENU_STARTUP));
+        AppendMenuW(m, MF_STRING | (g_tray ? MF_CHECKED : 0), CMD_TRAY, T(IDS_MENU_TRAY));
         AppendMenuW(m, MF_SEPARATOR, 0, nullptr);
-        AppendMenuW(m, MF_STRING, CMD_ABOUT, T(L"About DeskTick\u2026"));
+        AppendMenuW(m, MF_STRING, CMD_ABOUT, T(IDS_MENU_ABOUT));
         // "Exit" quits the app outright: with no taskbar button, and a tray
         // icon only if it was asked for, there may be nothing left behind to
         // reopen it from.
-        AppendMenuW(m, MF_STRING, CMD_CLOSE, T(L"Exit"));
+        AppendMenuW(m, MF_STRING, CMD_CLOSE, T(IDS_MENU_EXIT));
         SetForegroundWindow(hwnd);              // required for menu dismissal on NOACTIVATE windows
         POINT pt; GetCursorPos(&pt);
         g_menuUp = true;                        // the outside-click hook must ignore menu clicks
