@@ -29,7 +29,8 @@ void RefreshFace();
 // Repaint at the current wall time, rebuilding nothing. For a nested modal
 // loop only: a common dialog pumps its own messages, and the engine's loop —
 // the one thing that waits on the tick timer — is not running while it does.
-// See the colour picker in customize.cpp, the only caller.
+// Two callers: the colour picker in customize.cpp and the clock's own popup
+// menu, the program's two nested modal loops.
 void ClockRepaint();
 
 // ShowSeconds() is declared in faces.h, not here: a face reads it from

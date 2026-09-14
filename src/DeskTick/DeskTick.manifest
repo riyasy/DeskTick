@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <!-- Nothing binds to this identity, but a manifest claiming a version the exe's VERSIONINFO
+       does not is the kind of small inconsistency a scanner notices. Third hand-kept copy of
+       DeskTick\version.h's VER_NUMBER, after Package.appxmanifest's Identity Version. -->
+  <assemblyIdentity type="win32" name="DeskTick" version="1.0.3.0" processorArchitecture="*"/>
+
+  <!-- Common Controls v6: the themed look of both dialogs' controls. Without this user32
+       draws them in the unthemed v5 style, and the dark-mode theme classes dlgchrome.cpp
+       applies have nothing to act on. -->
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="Microsoft.Windows.Common-Controls"
+                        version="6.0.0.0" processorArchitecture="*"
+                        publicKeyToken="6595b64144ccf1df" language="*"/>
+    </dependentAssembly>
+  </dependency>
+
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <!-- The code already calls SetProcessDpiAwarenessContext; declaring it here too means the
+           process is aware before the first window exists, so the clock is never scaled by the
+           OS behind our back. -->
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
+    </windowsSettings>
+  </application>
+
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/> <!-- Windows 10 / 11 -->
+    </application>
+  </compatibility>
+</assembly>

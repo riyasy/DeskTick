@@ -125,7 +125,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="app.manifest">
+    <Manifest Include="DeskTick.manifest">
       <Filter>Resource Files</Filter>
     </Manifest>
   </ItemGroup>

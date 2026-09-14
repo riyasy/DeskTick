@@ -28,6 +28,7 @@ static const float GRIP_R = 13.0f;           // the round grip button's radius
 
 #define WM_ENDRESIZE (WM_APP + 1)            // posted by the outside-click hook
 #define WM_TRAYICON  (WM_APP + 2)            // the notification icon's callback
+#define MENU_TICK    1u                      // unsigned: compared against a WPARAM
 
 // ---- menu command ids ----
 enum { CMD_SECONDS = 1, CMD_RESIZE, CMD_CONFIG, CMD_TOPMOST, CMD_STARTUP,
@@ -388,13 +389,22 @@ static void PinToDesktop()
 // Always on top. The desktop ownership above is kept either way — the two are
 // not in conflict: SetWindowPos drags a window's *owned* windows topmost with
 // it and explicitly leaves its owner alone, so the desktop stays at the
-// bottom where it belongs. Off is HWND_NOTOPMOST rather than HWND_BOTTOM,
-// which would shove the clock under everything instead of merely out of the
-// topmost band.
+// bottom where it belongs.
+//
+// Off is HWND_BOTTOM, not HWND_NOTOPMOST: that one reads like "leave it be" and
+// is a raise — "above all non-topmost windows", i.e. in front of whatever
+// launched us. A desktop clock belongs behind every application, and it cannot
+// sink below the wallpaper, because Windows keeps an owned window above its
+// owner and ours is DefView. HWND_BOTTOM also strips WS_EX_TOPMOST by itself,
+// so one call still serves both directions of the toggle.
+//
+// This is the one function that owns the z-order, and anything that raises the
+// window must call it afterwards. Today that is two things: ShowWindow at
+// startup and the menu's SetForegroundWindow.
 // ------------------------------------------------------------------
 static void ApplyTopmost()
 {
-    SetWindowPos(g_hwnd, g_topmost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0,
+    SetWindowPos(g_hwnd, g_topmost ? HWND_TOPMOST : HWND_BOTTOM, 0, 0, 0, 0,
                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 }
 
@@ -613,9 +623,22 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         // right-aligned, submenus opening leftward. The clock itself is a dial
         // and needs nothing.
         UINT tpm = TPM_RETURNCMD | TPM_RIGHTBUTTON | (LocIsRTL() ? TPM_LAYOUTRTL : 0);
+        // TrackPopupMenu is a nested modal loop, so the engine's loop — the one
+        // thing waiting on the tick timer — is not running while the menu is up,
+        // and the hands would freeze. A UI timer *is* dispatched by that loop, so
+        // one lives exactly as long as the menu, the colour picker's remedy
+        // (customize.cpp). 250 ms, not 1000: its phase is wherever the menu
+        // opened, so a one-second period could sit a second off the beat; every
+        // face draws whole seconds, so a faster sample steps, never creeps.
+        SetTimer(hwnd, MENU_TICK, 250, nullptr);
         int cmd = TrackPopupMenu(m, tpm, pt.x, pt.y, 0, hwnd, nullptr);
+        KillTimer(hwnd, MENU_TICK);
         g_menuUp = false;
         DestroyMenu(m);                         // destroys the submenu too
+        // SetForegroundWindow above raised us; put it back. Here and not before
+        // the switch: the face branch returns early. Still ahead of the commands,
+        // so CMD_TOPMOST's own call has the last word.
+        ApplyTopmost();
         if (cmd >= CMD_FACE0) {
             g_face = cmd - CMD_FACE0;
             if (g_face >= NUM_BUILTIN)
@@ -675,6 +698,9 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     }
     case WM_ENDRESIZE:                          // click landed outside: done resizing
         SetResizeMode(false);
+        return 0;
+    case WM_TIMER:                              // only armed while the menu tracks
+        if (wp == MENU_TICK) ClockRepaint();
         return 0;
     case WM_TRAYICON:
         // Version 3 callback: lParam is the mouse message, plainly. Either
@@ -780,14 +806,14 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, PWSTR, int)
     // desktop can't be found (shell not running) — the retry picks it up.
     PinToDesktop();
 
-    // The persisted window toggles. Topmost and Tray are no-ops in their off
-    // state, so they are applied unconditionally rather than branched around.
-    // Seconds needs no apply call, but must be read before CreateResources
-    // below: BuildDial sizes the Digital faces' panel from ShowSeconds().
+    // The persisted window toggles. Tray is a no-op in its off state, so it is
+    // applied unconditionally rather than branched around; Topmost is applied
+    // after the ShowWindow below, which would otherwise undo it. Seconds needs
+    // no apply call, but must be read before CreateResources below: BuildDial
+    // sizes the Digital faces' panel from ShowSeconds().
     g_topmost = ConfigGetFlag(L"Topmost", false);
     g_tray    = ConfigGetFlag(L"Tray", false);
     g_seconds = ConfigGetFlag(L"Seconds", false);
-    ApplyTopmost();
     TraySync();
 
     g_dpi = GetDpiForWindow(g_hwnd);
@@ -798,6 +824,7 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, PWSTR, int)
                                             // that is no longer there — only now
                                             // is the size known to check against
     ShowWindow(g_hwnd, SW_SHOWNOACTIVATE);
+    ApplyTopmost();                         // after the show: showing raises
     DrawFrame();
 
     g_timer = CreateWaitableTimerExW(nullptr, nullptr,

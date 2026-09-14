@@ -342,7 +342,7 @@ static LRESULT CALLBACK CustomizeProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     case WM_TIMER:
         // Only ever armed inside ChooseColorW's modal loop (OnCommand): the
         // engine's loop is blocked for the duration, so this is what repaints
-        // the clock. Nothing else in this app uses a WM_TIMER.
+        // the clock. The clock's menu arms one of its own, on the clock's window.
         if (wp == TIMER_TICK) ClockRepaint();
         return 0;
     case WM_ERASEBKGND: {

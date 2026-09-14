@@ -128,7 +128,7 @@
     <ResourceCompile Include="Localization\strings.rc">
       <NullTerminateStrings>true</NullTerminateStrings>
     </ResourceCompile>
-    <Manifest Include="app.manifest" />
+    <Manifest Include="DeskTick.manifest" />
     <!-- Not build inputs of their own, listed so Solution Explorer shows every
          file in the folder: the icons DeskTick.rc compiles, the CSV and script
          that generate Localization\strings.*, and the design credits. -->

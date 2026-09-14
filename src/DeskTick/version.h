@@ -6,17 +6,20 @@
 // the kind of small inconsistency a scanner has no way to forgive, and a user
 // reporting a bug has no way to describe.
 //
+// XML cannot include this, so two copies are kept by hand: Version= in
+// Package.appxmanifest and the assemblyIdentity in DeskTick.manifest.
+//
 // RC only understands #define, so this file must stay free of anything else —
 // no #pragma once (harmless but pointless here), no types, no C++.
 
 #define VER_MAJOR       1
 #define VER_MINOR       0
-#define VER_PATCH       2
+#define VER_PATCH       3
 #define VER_BUILD       0
 
-#define VER_NUMBER      1,0,2,0             // VERSIONINFO wants commas
-#define VER_STRING      "1.0.2.0"           // and a matching string
-#define VER_DISPLAY     "v1.0.2"            // what a person reads, in the About box
+#define VER_NUMBER      1,0,3,0             // VERSIONINFO wants commas
+#define VER_STRING      "1.0.3.0"           // and a matching string
+#define VER_DISPLAY     "v1.0.3"          // what a person reads, in the About box
 
 #define VER_COMPANY     "RYF Tools"
 #define VER_PRODUCT     "DeskTick"
