@@ -135,6 +135,8 @@
     <Image Include="res\desktick.ico" />
     <Image Include="res\flyphotos.ico" />
     <Image Include="res\letitrain.ico" />
+    <Image Include="res\wtick.ico" />
+    <Image Include="res\deskflip.ico" />
     <Text Include="credits.txt" />
     <Text Include="Localization\translations.csv" />
     <None Include="Localization\build.ps1" />

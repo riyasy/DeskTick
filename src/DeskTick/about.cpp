@@ -19,7 +19,8 @@
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "shell32")
 
-static const int ICON_FLYPHOTOS = 101, ICON_LETITRAIN = 102;   // DeskTick.rc
+static const int ICON_FLYPHOTOS = 101, ICON_LETITRAIN = 102,   // DeskTick.rc
+                 ICON_WTICK = 103, ICON_DESKFLIP = 104;
 
 static const int A_MARGIN = 16, A_WIDTH = 372, A_ICON = 40, A_GAP = 14;
 
@@ -47,6 +48,10 @@ struct OtherApp {
 // click. Same value on both URLs so either route attributes the same, and named
 // for the surface (as the READMEs' cid=GitHubRelease is) so a second place that
 // links to the Store can be told apart from this one.
+//
+// Every app lists the others in one order — FlyPhotos, Let It Rain, WTick,
+// DeskTick, DeskFlip, less itself — with the same blurb wording, so keep this
+// table in step with the other four apps' About boxes.
 static const OtherApp OTHER_APPS[] = {
     { ICON_FLYPHOTOS, L"FlyPhotos", IDS_FLYPHOTOS_BLURB,
       L"ms-windows-store://pdp/?productid=9PMSK128V1QT&cid=DeskTickAbout",
@@ -54,6 +59,12 @@ static const OtherApp OTHER_APPS[] = {
     { ICON_LETITRAIN, L"Let It Rain", IDS_LETITRAIN_BLURB,
       L"ms-windows-store://pdp/?productid=9P1H1VCJHJZP&cid=DeskTickAbout",
       L"https://apps.microsoft.com/detail/9p1h1vcjhjzp?cid=DeskTickAbout&mode=full" },
+    { ICON_WTICK,     L"WTick", IDS_WTICK_BLURB,
+      L"ms-windows-store://pdp/?productid=9P039TR9SW9S&cid=DeskTickAbout",
+      L"https://apps.microsoft.com/detail/9p039tr9sw9s?cid=DeskTickAbout&mode=full" },
+    { ICON_DESKFLIP,  L"DeskFlip", IDS_DESKFLIP_BLURB,
+      L"ms-windows-store://pdp/?productid=9MSXBKV3295F&cid=DeskTickAbout",
+      L"https://apps.microsoft.com/detail/9msxbkv3295f?cid=DeskTickAbout&mode=full" },
 };
 
 // One handle per app above, sized from the table rather than counted by hand.
@@ -223,7 +234,7 @@ static LRESULT CALLBACK AboutProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     }
     case WM_SETCURSOR: {
         // A child's WM_SETCURSOR reaches us through its DefWindowProc, so the
-        // hand for both app rows is one handler rather than a subclass each.
+        // hand for every app row is one handler rather than a subclass each.
         int id = GetDlgCtrlID((HWND)wp);
         if (id >= ID_APP0 && id < ID_APP0 + (int)_countof(OTHER_APPS)) {
             SetCursor(LoadCursorW(nullptr, IDC_HAND));
