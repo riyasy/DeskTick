@@ -29,6 +29,9 @@ CLAUDE.md
 # notes. Not a build input, not read at runtime, and of no use to a clone.
 Docs/
 
+# facesheet.ps1 output — regenerated whenever a face changes.
+src/Util/out/
+
 # Test-signing certificate. Never a build input — the wapproj makes one on
 # demand — and committing a private key to a public repo is not recoverable.
 *.pfx
