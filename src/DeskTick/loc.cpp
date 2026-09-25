@@ -40,6 +40,11 @@ static LPCWSTR Bundle(UINT id) { return MAKEINTRESOURCEW((id >> 4) + 1); }
 
 static LANGID s_lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
 static bool   s_rtl;
+// The region every date lookup reads. Null is LOCALE_NAME_USER_DEFAULT; only a
+// Debug --lang (LocInit) points it at a name, so that a promo recorded in German
+// shows German weekdays under German menus.
+static const WCHAR* s_region = LOCALE_NAME_USER_DEFAULT;
+static WCHAR        s_forced[LOCALE_NAME_MAX_LENGTH];
 
 // ------------------------------------------------------------------
 // Choosing the language
@@ -58,8 +63,14 @@ static BOOL CALLBACK CollectLang(HMODULE, LPCWSTR, LPCWSTR, WORD lang, LONG_PTR 
     return TRUE;
 }
 
-void LocInit()
+void LocInit(const WCHAR* forced)
 {
+    // Debug only: a --lang stands in for both Windows settings at once — the UI
+    // chain below becomes that one name, and the dates read it as the region.
+    // It is how the promo videos show each language without changing Windows.
+    if (forced && SUCCEEDED(StringCchCopyW(s_forced, _countof(s_forced), forced)))
+        s_region = s_forced;
+
     // The user's *display language* chain, most preferred first — NOT
     // GetUserDefaultLocaleName, which is the Region setting and answers a
     // different question. The two genuinely differ in the field: this machine
@@ -71,7 +82,9 @@ void LocInit()
     // dozens of languages; a chain that overflows it leaves us in English.
     WCHAR langs[512] = { 0 };
     ULONG count = 0, cch = _countof(langs);
-    if (!GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &count, langs, &cch))
+    if (s_region)                                    // a chain of one; langs is zeroed,
+        StringCchCopyW(langs, _countof(langs) - 1, s_region);   // so it ends double-null
+    else if (!GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &count, langs, &cch))
         langs[0] = 0;
 
     // Mirroring follows the language the UI is *written in*, so it reads from
@@ -166,7 +179,7 @@ bool LocIsRTL()
 // it leaves German ß alone rather than expanding it. No per-script branch.
 static void FillName(LCTYPE what, WCHAR* slot, size_t cch)
 {
-    if (GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, what, slot, (int)cch))
+    if (GetLocaleInfoEx(s_region, what, slot, (int)cch))
         CharUpperW(slot);
 }
 
@@ -211,7 +224,7 @@ const WCHAR* LocTimeSep()
         // this is not hypothetical. Falls back to a colon, which is both the
         // overwhelming majority answer and what every face's slot was measured
         // against.
-        if (!GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_STIME, s_sep, _countof(s_sep))
+        if (!GetLocaleInfoEx(s_region, LOCALE_STIME, s_sep, _countof(s_sep))
             || !s_sep[0])
             lstrcpynW(s_sep, L":", _countof(s_sep));
         s_done = true;
@@ -226,9 +239,9 @@ const WCHAR* LocAmPm(bool pm)
     if (!s_done) {
         // A 24-hour locale legitimately has none; the empty string is then the
         // right answer and the caller draws nothing.
-        if (!GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_S1159, s_am, _countof(s_am)))
+        if (!GetLocaleInfoEx(s_region, LOCALE_S1159, s_am, _countof(s_am)))
             s_am[0] = 0;
-        if (!GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_S2359, s_pm, _countof(s_pm)))
+        if (!GetLocaleInfoEx(s_region, LOCALE_S2359, s_pm, _countof(s_pm)))
             s_pm[0] = 0;
         CharUpperW(s_am);
         CharUpperW(s_pm);
@@ -243,7 +256,7 @@ const WCHAR* LocDate(const SYSTEMTIME& st, bool longForm, WCHAR* out, size_t cch
     // A null picture means "the user's own short or long date", which is the
     // point: it carries field *order* as well as names. ja-JP writes 3月2日,
     // hu-HU writes 2026. 03. 02. — an order no "%s %s %d" reaches.
-    if (!GetDateFormatEx(LOCALE_NAME_USER_DEFAULT,
+    if (!GetDateFormatEx(s_region,
                          longForm ? DATE_LONGDATE : DATE_SHORTDATE,
                          &st, nullptr, out, (int)cch, nullptr))
         out[0] = 0;

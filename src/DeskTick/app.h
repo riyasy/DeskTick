@@ -74,7 +74,9 @@ bool FindNearExe(const WCHAR* name, WCHAR* out, size_t cch);
 // Pick the string table built into the exe that matches the user's Windows
 // display language, once at startup. Call before anything builds a menu, a
 // dialog or a date. No matching language and every T() answers in English.
-void LocInit();
+// forced is a locale name that replaces both Windows settings (Debug --lang,
+// for the promo recordings); null in every shipped build.
+void LocInit(const WCHAR* forced);
 
 // The string for an IDS_ id from Localization\strings.h, in the chosen
 // language. Never null: the pointer is into the exe's own resources,

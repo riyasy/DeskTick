@@ -754,7 +754,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 // Startup, then the message loop that is the whole app: create the one
 // window, restore what was saved, and block until either the tick timer
 // fires or a message arrives.
-int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, PWSTR, int)
+int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, PWSTR cmdLine, int)
 {
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);   // for WIC (image faces)
@@ -763,7 +763,22 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, PWSTR, int)
     // Both before anything builds a menu, a dialog or a dial: the first two
     // read English literals that must already have translations behind them,
     // and the third indexes date tables that are null until this call.
-    LocInit();
+    // Debug builds take "--lang de-DE" in place of the Windows display language
+    // and region, so the promo videos can show each language on one machine.
+    // Release has no switch: the shipped exe answers to Windows alone.
+    const WCHAR* forced = nullptr;
+#ifdef _DEBUG
+    WCHAR lang[LOCALE_NAME_MAX_LENGTH] = {};
+    if (const WCHAR* p = wcsstr(cmdLine, L"--lang ")) {
+        p += 7;
+        int n = 0;
+        while (p[n] && p[n] != L' ' && n < (int)_countof(lang) - 1) { lang[n] = p[n]; n++; }
+        if (n) forced = lang;
+    }
+#else
+    UNREFERENCED_PARAMETER(cmdLine);
+#endif
+    LocInit(forced);
     LocInitDateNames();
 
     AssetsInit();       // where the image faces come from, if there are any
