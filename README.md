@@ -153,6 +153,8 @@ required.
 
 Contributions are welcome! Feel free to fork and submit pull requests.
 
+By submitting a pull request, you agree to the [Contributor License Agreement](CLA.md). You keep the copyright to your work.
+
 ---
 
 ## 💡 Tip
