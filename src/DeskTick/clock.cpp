@@ -378,18 +378,22 @@ static void SetResizeMode(bool on)
 // ------------------------------------------------------------------
 static bool g_needOwner;                    // grab failed; retry on the next tick
 
+static void ApplyTopmost();
+
 static void PinToDesktop()
 {
     HWND dv = FindDefView();
-    if (dv) SetWindowLongPtrW(g_hwnd, GWLP_HWNDPARENT, (LONG_PTR)dv);
+    if (dv) {
+        SetWindowLongPtrW(g_hwnd, GWLP_HWNDPARENT, (LONG_PTR)dv);
+        ApplyTopmost();                     // ownership changes can change z-order
+    }
     g_needOwner = !dv;                      // no shell running: try again later
 }
 
 // ------------------------------------------------------------------
-// Always on top. The desktop ownership above is kept either way — the two are
-// not in conflict: SetWindowPos drags a window's *owned* windows topmost with
-// it and explicitly leaves its owner alone, so the desktop stays at the
-// bottom where it belongs.
+// Always on top. Keep desktop ownership for Win+D, but protect the topmost
+// setting in WM_WINDOWPOSCHANGING too: Explorer can reorder the desktop and
+// its owned windows when showing the desktop or opening an application.
 //
 // Off is HWND_BOTTOM, not HWND_NOTOPMOST: that one reads like "leave it be" and
 // is a raise — "above all non-topmost windows", i.e. in front of whatever
@@ -398,14 +402,12 @@ static void PinToDesktop()
 // owner and ours is DefView. HWND_BOTTOM also strips WS_EX_TOPMOST by itself,
 // so one call still serves both directions of the toggle.
 //
-// This is the one function that owns the z-order, and anything that raises the
-// window must call it afterwards. Today that is two things: ShowWindow at
-// startup and the menu's SetForegroundWindow.
+// Explicit changes go here. Do not move the desktop owner along with us.
 // ------------------------------------------------------------------
 static void ApplyTopmost()
 {
     SetWindowPos(g_hwnd, g_topmost ? HWND_TOPMOST : HWND_BOTTOM, 0, 0, 0, 0,
-                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
 }
 
 // ------------------------------------------------------------------
@@ -469,6 +471,15 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     }
 
     switch (msg) {
+    case WM_WINDOWPOSCHANGING: {
+        auto* pos = reinterpret_cast<WINDOWPOS*>(lp);
+        // Change the pending operation instead of calling SetWindowPos here,
+        // which would recurse. Leave moves/resizes with SWP_NOZORDER alone,
+        // and let the normal desktop mode sink once the user turns this off.
+        if (g_topmost && !(pos->flags & SWP_NOZORDER))
+            pos->hwndInsertAfter = HWND_TOPMOST;
+        break;
+    }
     case WM_NCHITTEST: {
         if (g_resize) {
             RECT rc; GetWindowRect(hwnd, &rc);
