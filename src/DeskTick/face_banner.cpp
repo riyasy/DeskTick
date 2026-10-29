@@ -106,11 +106,18 @@ public:
     const WCHAR* GetName() const override { return L"Banner"; }
     UINT GetLabel() const override { return IDS_FACE_BANNER; }
 
-    // No static art — just the hit-test wash, or the transparent square
-    // would be click-through everywhere but the glyphs.
+    D2D1_RECT_F GetContentBounds() const override
+    {
+        const float w = 4 * CELL + COLON + (ShowSeconds() ? GAP + 2 * SCELL : 0);
+        return D2D1::RectF(o_date ? 0 : CX - w / 2, TIME_MID - TSIZE / 2,
+                           o_date ? DIAL : CX + w / 2,
+                           o_date ? DATE_Y + DATE_H + SHADOW_DY : DATE_Y);
+    }
+
+    // Back only the text layout so gaps between digits remain draggable.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override
     {
-        FillHitTestWash(rt, b);
+        FillHitTestWash(rt, b, GetContentBounds());
         return true;
     }
 

@@ -10,12 +10,9 @@
 // OS reclaims them at exit).
 //
 // The bar is drawn into the engine's square 240x240 scene, so it is a 48-tall
-// strip with transparent space above and below. The window stays square and
-// therefore larger than the clock — only noticeable when dragging (the whole
-// square is a drag handle) or in resize mode (the corner overlays sit away from
-// the bar). Matching the window to the bar would need a per-face aspect ratio in
-// the engine: CreateResources, BuildDial, DrawFrame, the ULW blit and the
-// grip/tick hit-tests all assume width == height.
+// strip with transparent, click-through space above and below. The internal
+// canvas stays square for proportional scaling; GetContentBounds keeps the
+// resize outline and grip on the bar itself.
 
 #include "faces.h"
 
@@ -110,6 +107,12 @@ public:
     const WCHAR* GetName() const override { return L"Digital"; }
     UINT GetLabel() const override { return IDS_FACE_DIGITAL; }
 
+    D2D1_RECT_F GetContentBounds() const override
+    {
+        const Bar bar = LayOut();
+        return D2D1::RectF(bar.x0, BY0, bar.x1, BY1);
+    }
+
     // Static part only: the translucent bar. Everything time-dependent is text
     // and therefore lives in DrawHands.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override
@@ -121,7 +124,7 @@ public:
                 D2D1::RoundedRect(D2D1::RectF(bar.x0, BY0, bar.x1, BY1), 8.0f, 8.0f), b);
         } else {
             // Without the panel only the glyphs would hit-test.
-            FillHitTestWash(rt, b);
+            FillHitTestWash(rt, b, GetContentBounds());
         }
         return true;
     }

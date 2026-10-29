@@ -115,7 +115,7 @@ Everything is saved to `%LOCALAPPDATA%\DeskTick.ini`.
 
 ## 🧰 Building
 
-MSBuild only - no package manager, no test suite.
+MSBuild only - no package manager.
 
 ```powershell
 $mb = "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe"
@@ -123,6 +123,12 @@ $mb = "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin
 ```
 
 Output lands in `src\DeskTick\x64\Release\DeskTick.exe`. Every translation is compiled in, so the exe is the whole app.
+
+For the native click-through regression checks, run `./tests/run-hit-testing.ps1`
+from an x64 Visual Studio Developer PowerShell (add `-Toolset v143` for VS 2022).
+The checks briefly display test windows, verify mouse targeting at three sizes,
+and leave your saved clock settings untouched. Their separate build is written
+to `src\DeskTick\x64\HitTest\`.
 
 ---
 

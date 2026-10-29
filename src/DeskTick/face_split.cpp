@@ -117,12 +117,19 @@ public:
     const WCHAR* GetName() const override { return L"Split"; }
     UINT GetLabel() const override { return IDS_FACE_SPLIT; }
 
-    // Static art: the hit-test wash and the two blocks.
+    D2D1_RECT_F GetContentBounds() const override
+    {
+        return D2D1::RectF(SX0, SY0, SX1,
+                           o_date ? DATE_Y + DATE_H + SHADOW_DY : SY1);
+    }
+
+    // The blocks already hit-test, including their rounded corners.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override
     {
-        // The date sits outside the blocks, so without the wash only the
-        // blocks themselves would be draggable.
-        FillHitTestWash(rt, b);
+        // Only the optional date line needs backing between its glyphs.
+        if (o_date)
+            FillHitTestWash(rt, b, D2D1::RectF(SX0, DATE_Y, SX1,
+                                              DATE_Y + DATE_H + SHADOW_DY));
 
         Half(rt, b, SX0,   SPLIT, FromRGB(o_hourBlock, 0.58f));
         Half(rt, b, SPLIT, SX1,   FromRGB(o_minBlock,  0.86f));

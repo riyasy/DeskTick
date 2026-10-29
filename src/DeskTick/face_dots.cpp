@@ -39,13 +39,20 @@ public:
     const WCHAR* GetName() const override { return L"Dots"; }
     UINT GetLabel() const override { return IDS_FACE_DOTS; }
 
+    D2D1_RECT_F GetContentBounds() const override
+    {
+        const float radius = RING + SIZE_PX[o_size];
+        return D2D1::RectF(CX - radius, CX - radius, CX + radius, CX + radius);
+    }
+
     // Static art: the hit-test wash and the ring of dots, count and size as
     // the two choices ask for.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override
     {
-        // The ring leaves most of the square empty, and an empty ULW pixel is
-        // click-through — see FillHitTestWash.
-        FillHitTestWash(rt, b);
+        // Keep the dial's interior draggable, but leave the corners transparent.
+        b->SetColor(D2D1::ColorF(0, 1.0f / 255.0f));
+        const float radius = RING + SIZE_PX[o_size];
+        rt->FillEllipse(D2D1::Ellipse(D2D1::Point2F(CX, CX), radius, radius), b);
 
         D2D1_POINT_2F c = D2D1::Point2F(CX, CX);
         b->SetColor(FromRGB(o_ink));

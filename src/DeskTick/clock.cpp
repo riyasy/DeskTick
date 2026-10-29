@@ -57,7 +57,9 @@ static bool                 g_tray;      // notification icon shown (persisted)
 static HHOOK                g_outsideHook;  // installed only while g_resize
 static bool                 g_menuUp;    // our popup menu is tracking
 static bool                 g_drag;      // grip drag in progress
-static POINT                g_anchor;    // fixed top-left corner during drag
+static POINT                g_dragStart; // pointer position at resize start
+static int                  g_dragSize;  // scene size at resize start
+static D2D1_POINT_2F         g_dragGrip;  // grip centre in scene DIPs
 static int                  g_face;      // 0..NUM_BUILTIN-1 = built-in face, NUM_BUILTIN.. = asset image (assets.cpp)
 
 // Face whose hands DrawFrame draws — set by BuildDial to what was actually
@@ -183,17 +185,18 @@ static void DrawFrame()
     g_activeFace->DrawHands(g_rt, g_brush, st, g_seconds, base);
 
     if (g_resize) {
-        // Dotted marquee on the window's square bounds — the dial is a circle,
-        // so without it there is nothing showing what the drag actually sizes.
+        const D2D1_RECT_F bounds = g_activeFace->GetContentBounds();
+        // Outline the face's layout rather than the internal square canvas.
         // Inset half a stroke width so neither edge is clipped.
         g_brush->SetColor(D2D1::ColorF(0.2f, 0.5f, 0.9f, 0.9f));
-        g_rt->DrawRectangle(D2D1::RectF(0.75f, 0.75f, DIAL - 0.75f, DIAL - 0.75f),
+        g_rt->DrawRectangle(D2D1::RectF(bounds.left + 0.75f, bounds.top + 0.75f,
+                                       bounds.right - 0.75f, bounds.bottom - 0.75f),
                             g_brush, 1.5f, g_dashStroke);
 
         // Grip, bottom-right (FlipClock's button): light disc, hairline rim,
         // NWSE double arrow — the same axis as the IDC_SIZENWSE cursor over it.
         // Overlays need alpha > 0: fully transparent ULW pixels are click-through.
-        D2D1_POINT_2F gc = D2D1::Point2F(DIAL - GRIP / 2, DIAL - GRIP / 2);
+        D2D1_POINT_2F gc = D2D1::Point2F(bounds.right - GRIP / 2, bounds.bottom - GRIP / 2);
         D2D1_ELLIPSE  disc = D2D1::Ellipse(gc, GRIP_R, GRIP_R);
         g_brush->SetColor(D2D1::ColorF(0.96f, 0.97f, 0.99f, 0.97f));
         g_rt->FillEllipse(disc, g_brush);
@@ -308,12 +311,15 @@ static void ArmTimer()
     SetWaitableTimerEx(g_timer, &due, 0, nullptr, nullptr, nullptr, 0);
 }
 
-// Grip hit region in physical pixels (GRIP DIPs scaled to window size). It is
-// the disc's bounding square, not the disc — the square's corners are fully
-// transparent, so ULW makes them click-through before the hit test is asked.
-static int GripPx() { return MulDiv(g_winPx, (int)GRIP, (int)DIAL); }
-// True for a client-relative point inside that square.
-static bool InGrip(int x, int y) { int s = GripPx(); return x > g_winPx - s && y > g_winPx - s; }
+// Use the actual grip disc, including where it overlaps opaque clock artwork.
+static bool InGrip(int x, int y)
+{
+    if (!g_activeFace || !g_winPx) return false;
+    const D2D1_RECT_F bounds = g_activeFace->GetContentBounds();
+    const float dx = x * DIAL / g_winPx - (bounds.right - GRIP / 2);
+    const float dy = y * DIAL / g_winPx - (bounds.bottom - GRIP / 2);
+    return dx * dx + dy * dy <= (GRIP_R + 0.5f) * (GRIP_R + 0.5f);
+}
 
 // ------------------------------------------------------------------
 // Resize mode is transient: turn it on, size the clock, click away. But this
@@ -334,8 +340,8 @@ static LRESULT CALLBACK OutsideClickProc(int code, WPARAM wp, LPARAM lp)
     if (code == HC_ACTION && !g_menuUp &&
         (wp == WM_LBUTTONDOWN || wp == WM_RBUTTONDOWN || wp == WM_MBUTTONDOWN)) {
         POINT pt = ((MSLLHOOKSTRUCT*)lp)->pt;
-        RECT rc; GetWindowRect(g_hwnd, &rc);
-        if (!PtInRect(&rc, pt))
+        // A transparent part of our canvas belongs to the window behind us.
+        if (!g_drag && WindowFromPoint(pt) != g_hwnd)
             PostMessageW(g_hwnd, WM_ENDRESIZE, 0, 0);
     }
     return CallNextHookEx(nullptr, code, wp, lp);
@@ -514,9 +520,10 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     case WM_LBUTTONDOWN: {                      // only reachable in resize mode
         int x = GET_X_LPARAM(lp), y = GET_Y_LPARAM(lp);
         if (InGrip(x, y)) {                     // grip: start manual resize drag
-            RECT rc; GetWindowRect(hwnd, &rc);
-            g_anchor.x = rc.left;               // top-left corner stays fixed
-            g_anchor.y = rc.top;
+            GetCursorPos(&g_dragStart);
+            g_dragSize = g_winPx;
+            const D2D1_RECT_F bounds = g_activeFace->GetContentBounds();
+            g_dragGrip = D2D1::Point2F(bounds.right - GRIP / 2, bounds.bottom - GRIP / 2);
             g_drag = true;
             SetCapture(hwnd);
             // One-time realloc to the max drag size (dial rendered crisp at
@@ -539,8 +546,12 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     case WM_MOUSEMOVE:
         if (g_drag) {
             POINT p; GetCursorPos(&p);
-            int w = p.x - g_anchor.x, h = p.y - g_anchor.y;
-            int px = max(w, h);                 // keep the window square
+            // Project pointer motion onto the grip's scaling direction. Using
+            // the initial pointer offset avoids a jump when grabbing its edge.
+            const float dx = (float)(p.x - g_dragStart.x);
+            const float dy = (float)(p.y - g_dragStart.y);
+            int px = g_dragSize + (int)(DIAL * (dx * g_dragGrip.x + dy * g_dragGrip.y) /
+                (g_dragGrip.x * g_dragGrip.x + g_dragGrip.y * g_dragGrip.y));
             if (px < 96)   px = 96;
             if (px > g_px) px = g_px;           // can't outgrow the drag buffer
             if (px != g_winPx) {

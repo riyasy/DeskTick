@@ -120,10 +120,11 @@ void FillEllipseVGrad(ID2D1RenderTarget* rt, const D2D1_ELLIPSE& e,
 // to alpha 0 and Windows hands the click straight through to the desktop.
 // Black rather than white because it survives on a light wallpaper the same
 // way — at one part in 255 neither is visible, but only alpha is load-bearing.
-void FillHitTestWash(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b)
+void FillHitTestWash(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b,
+                     const D2D1_RECT_F& bounds)
 {
     b->SetColor(D2D1::ColorF(0, 1.0f / 255.0f));
-    rt->FillRectangle(D2D1::RectF(0, 0, DIAL, DIAL), b);
+    rt->FillRectangle(bounds, b);
 }
 
 // Shared hand geometry: used by ClassicFace and directly by the engine

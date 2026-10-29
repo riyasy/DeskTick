@@ -12,7 +12,7 @@
 // 2. A face with no static art still needs a dial, because ULW pixels with
 //    alpha 0 are click-through: a fully transparent dial would leave only the
 //    glyphs draggable. DrawDial hands that to FillHitTestWash (faces.cpp),
-//    which paints the square at the one alpha step above nothing.
+//    which backs only the text layout at one alpha step above nothing.
 //
 // 3. The date line is tracked, which DrawText can't do — MakeTrackedLayout
 //    allocates, so the layout is rebuilt only when the string changes, i.e.
@@ -113,10 +113,17 @@ public:
     const WCHAR* GetName() const override { return L"Stack"; }
     UINT GetLabel() const override { return IDS_FACE_STACK; }
 
+    D2D1_RECT_F GetContentBounds() const override
+    {
+        return D2D1::RectF(LX, 18, o_date ? LX + 202 :
+                           (ShowSeconds() ? 122 + 2 * SEC_CELL : LX + 2 * BIG_CELL),
+                           o_date ? 226.0f : 194.0f);
+    }
+
     // No static art — just the invisible hit-test wash. See (2).
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override
     {
-        FillHitTestWash(rt, b);
+        FillHitTestWash(rt, b, GetContentBounds());
         return true;
     }
 

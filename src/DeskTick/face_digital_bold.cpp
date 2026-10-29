@@ -161,6 +161,12 @@ public:
     const WCHAR* GetName() const override { return L"Digital bold"; }
     UINT GetLabel() const override { return IDS_FACE_DIGITAL_BOLD; }
 
+    D2D1_RECT_F GetContentBounds() const override
+    {
+        return D2D1::RectF(CX - PanelHalf(), PanelY0(),
+                           CX + PanelHalf(), PanelY0() + PanelH());
+    }
+
     // Static art: the panel, sized by PanelHalf/PanelH to what is on it — or
     // the bare hit-test wash when the panel is off.
     bool DrawDial(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b) const override
@@ -172,7 +178,7 @@ public:
                 D2D1::RoundedRect(D2D1::RectF(CX - half, y0, CX + half, y0 + PanelH()),
                                   8.0f, 8.0f), b);
         } else {
-            FillHitTestWash(rt, b);      // keep the square clickable
+            FillHitTestWash(rt, b, GetContentBounds());
         }
         return true;
     }

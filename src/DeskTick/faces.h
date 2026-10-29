@@ -75,6 +75,9 @@ struct IClockFace {
     // Options this face exposes in the configure dialog. Not pure: a face
     // with nothing to configure says nothing.
     virtual int GetOptions(const FaceOpt** out) const { (void)out; return 0; }
+    // Stable layout bounds for the resize outline, in scene DIPs. Transparent
+    // pixels outside the artwork still pass clicks through via layered alpha.
+    virtual D2D1_RECT_F GetContentBounds() const { return D2D1::RectF(0, 0, DIAL, DIAL); }
 };
 
 // Shared hand geometry: also used directly by the engine for image faces.
@@ -148,12 +151,11 @@ void DrawCells(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b,
 void FillEllipseVGrad(ID2D1RenderTarget* rt, const D2D1_ELLIPSE& e,
                       const D2D1_COLOR_F& top, const D2D1_COLOR_F& bottom);
 
-// Flood the 240-DIP square with the faintest pixel that still hit-tests, for
-// a face whose art doesn't cover it (the text faces, Dots, Split). Call it
-// first in DrawDial: UpdateLayeredWindow makes any pixel with alpha 0
-// click-through, so without it only the inked glyphs could be dragged or
-// right-clicked and the rest of the window belongs to the desktop.
-void FillHitTestWash(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b);
+// Keep gaps within a text layout draggable, without blocking the surrounding
+// desktop. Call only for the content bounds: alpha-zero pixels pass clicks
+// through to other applications, including when the clock is topmost.
+void FillHitTestWash(ID2D1RenderTarget* rt, ID2D1SolidColorBrush* b,
+                     const D2D1_RECT_F& bounds);
 
 // Month and weekday names in the user's regional language, uppercased. Filled
 // once at startup by LocInitDateNames() (loc.cpp) from LOCALE_S[ABBREV]MONTHNAME
