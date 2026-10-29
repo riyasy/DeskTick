@@ -151,7 +151,7 @@ required.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Feel free to fork and submit pull requests.
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request - including the note on AI-assisted contributions.
 
 By submitting a pull request, you agree to the [Contributor License Agreement](CLA.md). You keep the copyright to your work.
 
